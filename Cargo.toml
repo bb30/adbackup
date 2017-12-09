@@ -1,0 +1,9 @@
+[package]
+name = "adbackup"
+version = "0.1.0"
+authors = [
+    "Julian Raufelder <julian.raufelder@htwg-konstanz.de",
+    "Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>"
+]
+
+[dependencies]
