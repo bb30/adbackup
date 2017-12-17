@@ -2,3 +2,6 @@ language: rust
 script:
   - cargo build --verbose
   - cargo test --verbose
+os:
+ - linux
+ - osx
