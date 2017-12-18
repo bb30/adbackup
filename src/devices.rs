@@ -19,6 +19,7 @@ impl Device {
 
         if output.status.success() {
             let output_message = String::from_utf8(output.stdout).unwrap(); // @SailReal FIXME with failure
+            trace!("output message from command: {}", output_message);
             return Device::parse_devices(output_message);
         }
 

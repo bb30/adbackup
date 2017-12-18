@@ -18,6 +18,10 @@ clap = "~2.19"
 clippy = {version = "0.0.103", optional = true}
 spectral = "0.6.0"
 error-chain = "0.11" # TODO @DonatJR replace error-chain with failure
+fern = "0.4.3"
+log = "0.3"
+chrono = "0.4"
+
 
 [features]
 default = []

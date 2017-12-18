@@ -1,4 +1,11 @@
 pub mod devices;
+pub mod logging;
+
+extern crate fern;
+extern crate chrono;
+
+#[macro_use]
+extern crate log;
 
 #[cfg(test)]
 #[macro_use]
