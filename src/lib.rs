@@ -1,4 +1,4 @@
-mod devices;
+pub mod devices;
 
 #[cfg(test)]
 #[macro_use]
