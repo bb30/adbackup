@@ -1,8 +1,6 @@
 #![cfg_attr(feature = "clippy", feature(plugin))]
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 
-#![recursion_limit = "1024"]
-
 #[macro_use]
 extern crate log;
 

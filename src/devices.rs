@@ -1,5 +1,4 @@
 use std::process::{Command, Stdio};
-use super::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Device {
