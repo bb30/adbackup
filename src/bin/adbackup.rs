@@ -14,6 +14,10 @@ extern crate adbackup;
 use adbackup::devices::Device;
 use adbackup::logging;
 
+extern crate failure;
+
+use failure::Error;
+
 fn main() {
     let matches = make_clap().get_matches();
 
@@ -28,7 +32,10 @@ fn main() {
     logging::setup_logging(verbosity)
         .expect("failed to initialize logging.");
 
-    sub_fn();
+    let result = sub_fn();
+    if let Some(error) = result.err() {
+        error!("adbackup finished with error: {}", error.to_string());
+    }
 }
 
 fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
@@ -47,8 +54,10 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
             .help("List all android devices connected to your pc with enabled debug mode."))
 }
 
-fn print_devices() {
-    if let Some(devices) = Device::list_devices() {
+fn print_devices() -> Result<(), Error> {
+    let devices = Device::list_devices()?;
+
+    if devices.len() > 0 {
         info!("Found the following devices:");
         devices.into_iter().for_each(|device|
             info!("Id: '{}', Name: '{}'", device.id, device.name))
@@ -56,4 +65,6 @@ fn print_devices() {
         warn!("No device found. Make sure that you connect at least one device with enabled \
         debug options.");
     }
+
+    Ok(())
 }

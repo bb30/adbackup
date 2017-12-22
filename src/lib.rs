@@ -11,6 +11,8 @@ extern crate log;
 #[macro_use]
 extern crate hamcrest;
 
+extern crate failure;
+
 pub fn version() -> &'static str {
     "0.1.0"
 }
