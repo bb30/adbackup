@@ -4,7 +4,7 @@ use std::process::Command;
 fn test_help() {
     let empty_string = "";
     let mocked_message = "adbackup 0.1.0\nJulian Raufelder \
-        <julian.raufelder@htwg-konstanz.de:Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>\n\
+        <julian.raufelder@htwg-konstanz.de>:Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>\n\
         A backup tool for android using adb\n\nUSAGE:\n    adbackup [FLAGS] [SUBCOMMAND]\n\n\
         FLAGS:\n    -h, --help       Prints help information\n    -V, --version    \
         Prints version information\n    -v               Increases logging verbosity each use for \
