@@ -27,8 +27,11 @@ fn main() {
         _ => unimplemented!(),
     };
 
-    let verbosity = matches.occurrences_of("verbose")
-        + subm.unwrap().occurrences_of("verbose");
+    let mut verbosity = matches.occurrences_of("verbose");
+    if let Some(subm) = subm {
+        verbosity += subm.occurrences_of("verbose");
+    }
+
     logging::setup_logging(verbosity)
         .expect("failed to initialize logging.");
 
