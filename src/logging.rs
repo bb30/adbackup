@@ -1,5 +1,7 @@
+use chrono;
+use fern;
+use log;
 use std::io;
-use super::*;
 
 pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
     let mut base_config = fern::Dispatch::new();
