@@ -6,8 +6,14 @@ authors = [
     "Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>"
 ]
 
+[lib]
+name ="adbackup"
+path = "src/lib.rs"
+doc = false
+
 [[bin]]
-name = "adbackup"
+name = "adbackup-cli"
+path = "src/bin/adbackup-cli.rs"
 doc = false
 
 [dev-dependencies]
