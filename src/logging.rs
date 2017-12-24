@@ -1,5 +1,6 @@
-use std::io;
-use super::*;
+use chrono;
+use fern;
+use log;
 
 pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
     let mut base_config = fern::Dispatch::new();
@@ -32,20 +33,7 @@ pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
         })
         .chain(fern::log_file("adbackup.log")?);
 
-    let stdout_config = fern::Dispatch::new()
-        .format(|out, message, record| {
-            // special format for debug messages coming from our own crate.
-            if record.level() > log::LogLevelFilter::Info && record.target() == "cmd_program" {
-                out.finish(format_args!("---\nDEBUG: {}: {}\n---",
-                                        chrono::Local::now().format("%H:%M:%S"),
-                                        message))
-            } else {
-                out.finish(format_args!("{}", message))
-            }
-        })
-        .chain(io::stdout());
-
-    base_config.chain(file_config).chain(stdout_config).apply()?;
+    base_config.chain(file_config).apply()?;
 
     Ok(())
 }

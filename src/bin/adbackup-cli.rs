@@ -22,8 +22,11 @@ fn main() {
         _ => unimplemented!(),
     };
 
-    let verbosity = matches.occurrences_of("verbose")
-        + subm.unwrap().occurrences_of("verbose");
+    let mut verbosity = matches.occurrences_of("verbose");
+    if let Some(subm) = subm {
+        verbosity += subm.occurrences_of("verbose");
+    }
+    
     adbackup::setup_logging(verbosity);
 
     let result = sub_fn();
@@ -50,7 +53,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
 
 fn print_devices() -> Result<(), Error> {
     let devices = adbackup::get_printable_device_list()?;
-    info!("{}", devices);
+    println!("{}", devices);
 
     Ok(())
 }

@@ -28,13 +28,24 @@ pub fn get_printable_device_list() -> Result<String, Error> {
     let devices = Device::list_devices()?;
 
     if devices.len() > 0 {
-        let mut device_list = String::from("Found the following devices:\r\n");
-        devices.into_iter().for_each(|device|
-            device_list = format!("{}\r\nId: '{}', Name: '{}'", device_list, device.id, device.name));
+        let devices_found = "Found the following devices:";
+        info!("{}", devices_found);
+
+        let mut device_list = format!("{}\r\n", devices_found);
+
+        devices.into_iter().for_each(|device| {
+            let device_info = format!("Id: '{}', Name: '{}'", device.id, device.name);
+            info!("{}", device_info);
+            device_list = format!("{}\r\n{}", device_list, device_info)
+        });
+
         Ok(device_list)
     } else {
-        Ok(String::from("No device found. Make sure that you connect at least one device with enabled \
-        debug options."))
+        let no_devices_found = "No device found. Make sure that you connect at least one device with enabled \
+        debug options.";
+        warn!("{}", no_devices_found);
+
+        Ok(String::from(no_devices_found))
     }
 }
 
