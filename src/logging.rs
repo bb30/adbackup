@@ -1,6 +1,7 @@
 use chrono;
 use fern;
 use log;
+use std::io;
 
 pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
     let mut base_config = fern::Dispatch::new();
@@ -31,9 +32,29 @@ pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
                 message
             ))
         })
+        .filter(|meta_data| {
+            // log to file from module
+            let pkg_name = env!("CARGO_PKG_NAME");
+            meta_data.target() == pkg_name || meta_data.target().starts_with(&format!("{}::", pkg_name))
+        })
         .chain(fern::log_file("adbackup.log")?);
 
-    base_config.chain(file_config).apply()?;
+    let stdout_config = fern::Dispatch::new()
+        .format(|out, message, _record| {
+            out.finish(format_args!(
+                "[{}] {}",
+                chrono::Local::now().format("%H:%M"),
+                message
+            ))
+        })
+        .filter(|meta_data| {
+            // log to console from cli tool
+            let pkg_name = env!("CARGO_PKG_NAME");
+            meta_data.target().starts_with(&format!("{}_cli", pkg_name))
+        })
+        .chain(io::stdout());
+
+    base_config.chain(file_config).chain(stdout_config).apply()?;
 
     Ok(())
 }

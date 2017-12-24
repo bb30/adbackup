@@ -53,7 +53,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
 
 fn print_devices() -> Result<(), Error> {
     let devices = adbackup::get_printable_device_list()?;
-    println!("{}", devices);
+    info!("{}", devices);
 
     Ok(())
 }
