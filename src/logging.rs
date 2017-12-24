@@ -3,6 +3,9 @@ use fern;
 use log;
 use std::io;
 
+// FIXME: get colored output to work (has to be enabled in cargo.toml with features = ["colored"] for fern)
+// => does not yet work (at least with windows), if time allows create an issue in the fern repo
+
 pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
     let mut base_config = fern::Dispatch::new();
 
@@ -32,18 +35,25 @@ pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
                 message
             ))
         })
+        .filter(|meta_data| {
+            // log to file from module
+            let pkg_name = env!("CARGO_PKG_NAME");
+            meta_data.target() == pkg_name || meta_data.target().starts_with(&format!("{}::", pkg_name))
+        })
         .chain(fern::log_file("adbackup.log")?);
 
     let stdout_config = fern::Dispatch::new()
-        .format(|out, message, record| {
-            // special format for debug messages coming from our own crate.
-            if record.level() > log::LogLevelFilter::Info && record.target() == "cmd_program" {
-                out.finish(format_args!("---\nDEBUG: {}: {}\n---",
-                                        chrono::Local::now().format("%H:%M:%S"),
-                                        message))
-            } else {
-                out.finish(format_args!("{}", message))
-            }
+        .format(|out, message, _record| {
+            out.finish(format_args!(
+                "[{}] {}",
+                chrono::Local::now().format("%H:%M"),
+                message
+            ))
+        })
+        .filter(|meta_data| {
+            // log to console from cli tool
+            let pkg_name = env!("CARGO_PKG_NAME");
+            meta_data.target().starts_with(&format!("{}_cli", pkg_name))
         })
         .chain(io::stdout());
 

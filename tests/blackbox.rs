@@ -5,13 +5,13 @@ fn test_help() {
     let empty_string = "";
     let mocked_message = "adbackup 0.1.0\nJulian Raufelder \
         <julian.raufelder@htwg-konstanz.de>:Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>\n\
-        A backup tool for android using adb\n\nUSAGE:\n    adbackup [FLAGS] [SUBCOMMAND]\n\n\
+        A backup tool for android using adb\n\nUSAGE:\n    adbackup-cli [FLAGS] [SUBCOMMAND]\n\n\
         FLAGS:\n    -h, --help       Prints help information\n    -V, --version    \
         Prints version information\n    -v               Increases logging verbosity each use for \
         up to 3 times\n\nSUBCOMMANDS:\n    devices    List connected devices\n    help       \
         Prints this message or the help of the given subcommand(s)\n";
 
-    let output = Command::new("target/debug/adbackup")
+    let output = Command::new("target/debug/adbackup-cli")
         .arg("-h")
         .output().unwrap();
 

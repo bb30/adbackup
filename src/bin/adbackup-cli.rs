@@ -6,16 +6,11 @@ extern crate log;
 
 #[macro_use]
 extern crate clap;
-
 use clap::{Arg, App, AppSettings, SubCommand};
 
 extern crate adbackup;
 
-use adbackup::devices::Device;
-use adbackup::logging;
-
 extern crate failure;
-
 use failure::Error;
 
 fn main() {
@@ -31,9 +26,8 @@ fn main() {
     if let Some(subm) = subm {
         verbosity += subm.occurrences_of("verbose");
     }
-
-    logging::setup_logging(verbosity)
-        .expect("failed to initialize logging.");
+    
+    adbackup::setup_logging(verbosity);
 
     let result = sub_fn();
     if let Some(error) = result.err() {
@@ -58,16 +52,8 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
 }
 
 fn print_devices() -> Result<(), Error> {
-    let devices = Device::list_devices()?;
-
-    if devices.len() > 0 {
-        info!("Found the following devices:");
-        devices.into_iter().for_each(|device|
-            info!("Id: '{}', Name: '{}'", device.id, device.name))
-    } else {
-        warn!("No device found. Make sure that you connect at least one device with enabled \
-        debug options.");
-    }
+    let devices = adbackup::get_printable_device_list()?;
+    info!("{}", devices);
 
     Ok(())
 }
