@@ -3,6 +3,9 @@ use fern;
 use log;
 use std::io;
 
+// FIXME: get colored output to work (has to be enabled in cargo.toml with features = ["colored"] for fern)
+// => does not yet work (at least with windows), if time allows create an issue in the fern repo
+
 pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
     let mut base_config = fern::Dispatch::new();
 
