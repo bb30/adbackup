@@ -143,21 +143,7 @@ impl Backup {
 #[cfg(test)]
 mod tests {
     use hamcrest::prelude::*;
-    use devices::Device;
-    use backup::{BackupOptions, Backup};
-
-    #[test]
-    fn test_simple_backup() {
-        if Device::list_devices().unwrap().len() > 0 {
-            let options = BackupOptions::default()
-                .with_device_name("emulator-5554".to_string())
-                .with_applications()
-                .with_shared_storage()
-                .with_system_apps();
-
-            Backup::backup(options).unwrap()
-        }
-    }
+    use backup::Backup;
 
     #[test]
     fn test_parse_list_apps() {
@@ -183,19 +169,4 @@ mod tests {
         assert_that!(Backup::parse_list_apps(mocked_output.to_string()),
                                                                 is(equal_to(mocked_apps)))
     }
-
-    /*#[test]
-    fn test_all_options_backup() {
-        let options = BackupOptions::default("test")
-            .with_applications()
-            .with_shared_storage()
-            .with_system_apps();
-
-        let backup_result = Backup::backup(options);
-
-        assert_that(backup_result.is_ok(), is(Ok(())))
-
-        //let mocked_output = "List of devices attached\n\n\n".to_string();
-        //assert_that!(Device::parse_devices(mocked_output), is(equal_to(Vec::new())));
-    }*/
 }
