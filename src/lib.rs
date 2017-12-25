@@ -1,5 +1,6 @@
 mod devices;
 mod logging;
+mod backup;
 
 extern crate fern;
 extern crate chrono;
@@ -12,7 +13,10 @@ extern crate log;
 extern crate hamcrest;
 
 extern crate failure;
-use failure::Error;
+
+use failure::{Error, err_msg};
+
+use backup::Backup;
 
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
@@ -47,6 +51,75 @@ pub fn get_printable_device_list() -> Result<String, Error> {
 
         Ok(String::from(no_devices_found))
     }
+}
+
+pub fn get_printable_app_list(device_id: Option<String>) -> Result<String, Error> {
+    check_too_much_devices(&device_id)?;
+
+    let apps = Backup::list_apps(device_id)?;
+
+    if apps.len() > 0 {
+        let app_found = "Found the following app(s) on device:";
+        info!("{}", app_found);
+
+        let mut app_list = format!("{}\r\n", app_found);
+
+        apps.into_iter().for_each(|app| {
+            let app_name = format!("{}\n", app);
+            info!("{}", app_name);
+            app_list = format!("{}{}", app_list, app_name)
+        });
+
+        Ok(app_list)
+    } else {
+        let no_apps_found = "No packages found.";
+        warn!("{}", no_apps_found);
+
+        Ok(String::from(no_apps_found))
+    }
+}
+
+pub fn backup(device_id: Option<String>, apk: Option<String>, shared: Option<String>,
+              system: Option<String>, only_specified: Option<String>) -> Result<String, Error> {
+    check_too_much_devices(&device_id)?;
+
+    let mut backup_options = backup::BackupOptions::default();
+
+    if let Some(device_id) = device_id {
+        backup_options = backup_options.with_device_id(device_id);
+    }
+    if let Some(_) = apk {
+        backup_options = backup_options.with_applications();
+    }
+    if let Some(_) = shared {
+        backup_options = backup_options.with_shared_storage();
+    }
+    if let Some(_) = system {
+        backup_options = backup_options.with_system_apps();
+    }
+    if let Some(only_specified) = only_specified {
+        backup_options = backup_options.with_only_specified_apps(only_specified);
+    }
+
+    Backup::backup(backup_options)?;
+
+    let backup_finished = "Backup finished.";
+    info!("{}", backup_finished);
+
+    Ok(String::from(backup_finished))
+}
+
+fn check_too_much_devices(device_id: &Option<String>) -> Result<(), Error> {
+    if device_id.is_none() && devices::Device::list_devices()?.len() > 1 {
+        let error = "More than one device connected and no device provided.\n \
+        Please execute adbackup again, with `--device` and one of the following device ids:\n";
+
+        let error_message = format!("{}\n{}", error, get_printable_device_list()?);
+        info!("{}", error_message);
+        return Err(err_msg(error_message));
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]

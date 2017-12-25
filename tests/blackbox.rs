@@ -8,7 +8,8 @@ fn test_help() {
         A backup tool for android using adb\n\nUSAGE:\n    adbackup-cli [FLAGS] [SUBCOMMAND]\n\n\
         FLAGS:\n    -h, --help       Prints help information\n    -V, --version    \
         Prints version information\n    -v               Increases logging verbosity each use for \
-        up to 3 times\n\nSUBCOMMANDS:\n    devices    List connected devices\n    help       \
+        up to 3 times\n\nSUBCOMMANDS:\n    backup     Start backup of device\n    devices    List \
+        connected devices\n    apps       List all installed apps on devices\n    help       \
         Prints this message or the help of the given subcommand(s)\n";
 
     let output = Command::new("target/debug/adbackup-cli")
