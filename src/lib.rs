@@ -3,6 +3,7 @@ mod logging;
 mod backup;
 mod restore;
 mod adb_command;
+mod file_transfer;
 
 extern crate fern;
 extern crate chrono;
