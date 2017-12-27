@@ -1,6 +1,7 @@
 mod devices;
 mod logging;
 mod backup;
+mod restore;
 
 extern crate fern;
 extern crate chrono;
