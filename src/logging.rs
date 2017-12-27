@@ -38,7 +38,8 @@ pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
         .filter(|meta_data| {
             // log to file from module
             let pkg_name = env!("CARGO_PKG_NAME");
-            meta_data.target() == pkg_name || meta_data.target().starts_with(&format!("{}::", pkg_name))
+            meta_data.target() == pkg_name
+                || meta_data.target().starts_with(&format!("{}::", pkg_name))
         })
         .chain(fern::log_file("adbackup.log")?);
 

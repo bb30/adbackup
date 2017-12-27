@@ -5,8 +5,8 @@ mod restore;
 mod adb_command;
 mod file_transfer;
 
-extern crate fern;
 extern crate chrono;
+extern crate fern;
 
 #[macro_use]
 extern crate log;
@@ -17,7 +17,7 @@ extern crate hamcrest;
 
 extern crate failure;
 
-use failure::{Error, err_msg};
+use failure::{err_msg, Error};
 
 use backup::Backup;
 
@@ -26,8 +26,7 @@ pub fn version() -> &'static str {
 }
 
 pub fn setup_logging(verbosity: u64) {
-    logging::setup_logging(verbosity)
-        .expect("failed to initialize logging.");
+    logging::setup_logging(verbosity).expect("failed to initialize logging.");
 }
 
 pub fn get_printable_device_list() -> Result<String, Error> {
@@ -41,15 +40,16 @@ pub fn get_printable_device_list() -> Result<String, Error> {
         let mut device_list = format!("{}\r\n", devices_found);
 
         devices.into_iter().for_each(|device| {
-            let device_info = format!("Id: '{}', Name: '{}'", device.id, device.name);
+            let device_info = format!("Id: '{}', details: '{}'", device.id, device.details);
             info!("{}", device_info);
             device_list = format!("{}\r\n{}", device_list, device_info)
         });
 
         Ok(device_list)
     } else {
-        let no_devices_found = "No device found. Make sure that you connect at least one device with enabled \
-        debug options.";
+        let no_devices_found =
+            "No device found. Make sure that you connect at least one device with enabled \
+             debug options.";
         warn!("{}", no_devices_found);
 
         Ok(String::from(no_devices_found))
@@ -82,8 +82,13 @@ pub fn get_printable_app_list(device_id: Option<String>) -> Result<String, Error
     }
 }
 
-pub fn backup(device_id: Option<String>, apk: Option<String>, shared: Option<String>,
-              system: Option<String>, only_specified: Option<String>) -> Result<String, Error> {
+pub fn backup(
+    device_id: Option<String>,
+    apk: Option<String>,
+    shared: Option<String>,
+    system: Option<String>,
+    only_specified: Option<String>,
+) -> Result<String, Error> {
     check_too_much_devices(&device_id)?;
 
     let mut backup_options = backup::BackupOptions::default();
@@ -114,8 +119,9 @@ pub fn backup(device_id: Option<String>, apk: Option<String>, shared: Option<Str
 
 fn check_too_much_devices(device_id: &Option<String>) -> Result<(), Error> {
     if device_id.is_none() && devices::Device::list_devices()?.len() > 1 {
-        let error = "More than one device connected and no device provided.\n \
-        Please execute adbackup again, with `--device` and one of the following device ids:\n";
+        let error =
+            "More than one device connected and no device provided.\n \
+             Please execute adbackup again, with `--device` and one of the following device ids:\n";
 
         let error_message = format!("{}\n{}", error, get_printable_device_list()?);
         info!("{}", error_message);

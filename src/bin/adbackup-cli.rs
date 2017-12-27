@@ -7,7 +7,7 @@ extern crate log;
 #[macro_use]
 extern crate clap;
 
-use clap::{Arg, ArgMatches, App, AppSettings, SubCommand};
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 extern crate adbackup;
 
@@ -54,43 +54,58 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
         .author(crate_authors!())
         .version(adbackup::version())
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .arg(Arg::with_name("verbose")
-            .short("v")
-            .multiple(true)
-            .global(true)
-            .help("Increases logging verbosity each use for up to 3 times"))
-        .subcommand(SubCommand::with_name("backup")
-            .display_order(1)
-            .about("Start backup of device")
-            .arg(device_arg())
-            .arg(Arg::with_name("applications")
-                .help("Include the apk's into the backup")
-                .long("applications")
-                .short("applications"))
-            .arg(Arg::with_name("shared")
-                .help("Include the shared storage into the backup")
-                .long("shared")
-                .short("s"))
-            .arg(Arg::with_name("system")
-                .help("Include the system apps storage into the backup")
-                .long("system")
-                .short("S"))
-            .arg(Arg::with_name("only_specified")
-                .help("Include only the specified apps into the backup")
-                .long("specified")
-                .short("o")
-                .takes_value(true)
+        .arg(
+            Arg::with_name("verbose")
+                .short("v")
                 .multiple(true)
-                .value_name("APP")))
-        .subcommand(SubCommand::with_name("devices")
-            .display_order(2)
-            .about("List connected devices")
-            .arg(device_arg())
-            .help("List all android devices connected to your pc with enabled debug mode."))
-        .subcommand(SubCommand::with_name("apps")
-            .display_order(3)
-            .about("List all installed apps on devices")
-            .arg(device_arg())
+                .global(true)
+                .help("Increases logging verbosity each use for up to 3 times"),
+        )
+        .subcommand(
+            SubCommand::with_name("backup")
+                .display_order(1)
+                .about("Start backup of device")
+                .arg(device_arg())
+                .arg(
+                    Arg::with_name("applications")
+                        .help("Include the apk's into the backup")
+                        .long("applications")
+                        .short("applications"),
+                )
+                .arg(
+                    Arg::with_name("shared")
+                        .help("Include the shared storage into the backup")
+                        .long("shared")
+                        .short("s"),
+                )
+                .arg(
+                    Arg::with_name("system")
+                        .help("Include the system apps storage into the backup")
+                        .long("system")
+                        .short("S"),
+                )
+                .arg(
+                    Arg::with_name("only_specified")
+                        .help("Include only the specified apps into the backup")
+                        .long("specified")
+                        .short("o")
+                        .takes_value(true)
+                        .multiple(true)
+                        .value_name("APP"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("devices")
+                .display_order(2)
+                .about("List connected devices")
+                .arg(device_arg())
+                .help("List all android devices connected to your pc with enabled debug mode."),
+        )
+        .subcommand(
+            SubCommand::with_name("apps")
+                .display_order(3)
+                .about("List all installed apps on devices")
+                .arg(device_arg()),
         )
 }
 
@@ -100,7 +115,6 @@ fn print_devices(_: &ArgMatches, _: Option<&ArgMatches>) -> Result<(), Error> {
 
     Ok(())
 }
-
 
 fn backup(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     let device_id = param_from_match("device", matches, subm);
@@ -124,7 +138,11 @@ fn apps(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     Ok(())
 }
 
-fn param_from_match(param: &str, matches: &ArgMatches, subm: Option<&ArgMatches>) -> Option<String> {
+fn param_from_match(
+    param: &str,
+    matches: &ArgMatches,
+    subm: Option<&ArgMatches>,
+) -> Option<String> {
     if subm.is_some() {
         if let Some(param) = subm.unwrap().value_of(param) {
             return Some(param.to_string());

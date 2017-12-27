@@ -68,7 +68,8 @@ impl Backup {
             backup_options.shared_storage.clone(),
             backup_options.system_apps.clone(),
             backup_options.applications.clone(),
-            backup_options.only_specified_apps.clone()];
+            backup_options.only_specified_apps.clone(),
+        ];
 
         let adb_command = AdbCommand::command("backup".to_string())
             .with_args(command_args)
@@ -80,9 +81,7 @@ impl Backup {
     }
 
     pub fn list_apps(device_id: Option<String>) -> Result<Vec<String>, Error> {
-        let args = vec!["pm".to_string(),
-                        "list".to_string(),
-                        "packages".to_string()];
+        let args = vec!["pm".to_string(), "list".to_string(), "packages".to_string()];
 
         let output = AdbCommand::command("shell".to_string())
             .with_args(args)
@@ -99,8 +98,9 @@ impl Backup {
             .split('\n')
             .collect::<Vec<&str>>()
             .into_iter()
-            .filter(|x| !x.contains("package:com.android.")
-                && !x.contains("package:com.google.android."))
+            .filter(|x| {
+                !x.contains("package:com.android.") && !x.contains("package:com.google.android.")
+            })
             .for_each(|package| {
                 let splitted_package = package.split(':').collect::<Vec<&str>>();
 
@@ -112,7 +112,6 @@ impl Backup {
         result
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -132,15 +131,19 @@ mod tests {
             package:com.dropbox.android\npackage:com.android.sdksetup\n
             package:com.ustwo.lwp\npackage:com.breel.geswallpapers";
 
-        let mocked_apps = vec!["org.cryptomator".to_string(),
-                               "com.example.android.livecubes".to_string(),
-                               "com.estrongs.android.pop".to_string(),
-                               "org.cryptomator.test".to_string(),
-                               "com.dropbox.android".to_string(),
-                               "com.ustwo.lwp".to_string(),
-                               "com.breel.geswallpapers".to_string()];
+        let mocked_apps = vec![
+            "org.cryptomator".to_string(),
+            "com.example.android.livecubes".to_string(),
+            "com.estrongs.android.pop".to_string(),
+            "org.cryptomator.test".to_string(),
+            "com.dropbox.android".to_string(),
+            "com.ustwo.lwp".to_string(),
+            "com.breel.geswallpapers".to_string(),
+        ];
 
-        assert_that!(Backup::parse_list_apps(mocked_output.to_string()),
-                                                                is(equal_to(mocked_apps)))
+        assert_that!(
+            Backup::parse_list_apps(mocked_output.to_string()),
+            is(equal_to(mocked_apps))
+        )
     }
 }

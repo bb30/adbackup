@@ -1,6 +1,6 @@
 use std::process::{Command, Stdio};
 
-use failure::{Error, err_msg};
+use failure::{err_msg, Error};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct AdbCommand {
@@ -19,44 +19,39 @@ impl AdbCommand {
     }
 
     pub fn with_args(self, args: Vec<String>) -> Self {
-        AdbCommand {
-            args,
-            ..self
-        }
+        AdbCommand { args, ..self }
     }
 
     pub fn with_device_id(self, device_id: Option<String>) -> Self {
-        AdbCommand {
-            device_id,
-            ..self
-        }
+        AdbCommand { device_id, ..self }
     }
 
     pub fn execute(self) -> Result<String, Error> {
         let mut command = Command::new("adb");
 
         if let Some(device_id) = self.device_id {
-            command.arg("-s")
-                .arg(device_id);
+            command.arg("-s").arg(device_id);
         }
 
-        command.arg(self.command);
+        command.arg(&self.command);
         if self.args.len() > 0 {
             command.args(self.args);
         }
 
-        let output = command
-            .stdout(Stdio::piped())
-            .spawn()?
-            .wait_with_output()?;
+        trace!("Executing command: {}", self.command);
+
+        let output = command.stdout(Stdio::piped()).spawn()?.wait_with_output()?;
 
         if output.status.success() {
             let output_message = String::from_utf8(output.stdout)?;
-            trace!("output message from command: {}", output_message);
+            trace!("output message from {}: {}", self.command, output_message);
             Ok(output_message)
         } else {
             let error_output = String::from_utf8(output.stderr)?;
-            return Err(err_msg(format!("Error executing command {}", error_output)));
+            return Err(err_msg(format!(
+                "Error executing {} {}",
+                self.command, error_output
+            )));
         }
     }
 }

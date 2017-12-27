@@ -16,7 +16,6 @@ impl Restore {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use devices::Device;
