@@ -1,6 +1,6 @@
-use std::process::{Command, Stdio};
+use failure::Error;
 
-use failure::{Error, err_msg};
+use adb_command::AdbCommand;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct BackupOptions {
@@ -63,59 +63,33 @@ pub struct Backup {}
 
 impl Backup {
     pub fn backup(backup_options: BackupOptions) -> Result<(), Error> {
-        let mut child = Command::new("adb");
+        let command_args = vec![
+            backup_options.applications.clone(),
+            backup_options.shared_storage.clone(),
+            backup_options.system_apps.clone(),
+            backup_options.applications.clone(),
+            backup_options.only_specified_apps.clone()];
 
-        if let Some(device_id) = backup_options.device_id {
-            child.arg("-s")
-                .arg(device_id);
-        }
+        let adb_command = AdbCommand::command("backup".to_string())
+            .with_args(command_args)
+            .with_device_id(backup_options.device_id);
 
-        child.arg("backup")
-            .arg(&backup_options.applications)
-            .arg(&backup_options.shared_storage)
-            .arg(&backup_options.system_apps)
-            .arg(&backup_options.applications)
-            .arg(&backup_options.only_specified_apps);
+        AdbCommand::execute(adb_command)?;
 
-
-        let output = child
-            .stdout(Stdio::piped())
-            .spawn()?
-            .wait_with_output()?;
-
-        if output.status.success() {
-            let output_message = String::from_utf8(output.stdout)?;
-            trace!("output message from command: {}", output_message);
-            Ok(())
-        } else {
-            let error_output = String::from_utf8(output.stderr)?;
-            return Err(err_msg(format!("Error executing backup {}", error_output)));
-        }
+        Ok(())
     }
 
     pub fn list_apps(device_id: Option<String>) -> Result<Vec<String>, Error> {
-        let mut child = Command::new("adb");
+        let args = vec!["pm".to_string(),
+                        "list".to_string(),
+                        "packages".to_string()];
 
-        if let Some(device_id) = device_id {
-            child.arg("-s")
-                .arg(device_id);
-        }
+        let output = AdbCommand::command("shell".to_string())
+            .with_args(args)
+            .with_device_id(device_id)
+            .execute()?;
 
-        child.args(&["shell", "pm", "list", "packages"]);
-
-        let output = child
-            .stdout(Stdio::piped())
-            .spawn()?
-            .wait_with_output()?;
-
-        if output.status.success() {
-            let output_message = String::from_utf8(output.stdout)?;
-            trace!("output message from command: {}", output_message);
-            return Ok(Backup::parse_list_apps(output_message));
-        } else {
-            let error_output = String::from_utf8(output.stderr)?;
-            return Err(err_msg(format!("Error executing list apps {}", error_output)));
-        }
+        return Ok(Backup::parse_list_apps(output));
     }
 
     fn parse_list_apps(command_response: String) -> Vec<String> {

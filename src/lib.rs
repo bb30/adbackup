@@ -2,6 +2,7 @@ mod devices;
 mod logging;
 mod backup;
 mod restore;
+mod adb_command;
 
 extern crate fern;
 extern crate chrono;
