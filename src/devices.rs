@@ -27,10 +27,10 @@ impl Device {
                 let splitted_device = unparsed_device.split("device ").collect::<Vec<&str>>();
 
                 if let Some(device_id) = splitted_device.get(0) {
-                    if let Some(device_name) = splitted_device.get(1) {
+                    if let Some(device_details) = splitted_device.get(1) {
                         let device = Device {
                             id: device_id.trim().to_string(),
-                            details: device_name.trim().to_string(),
+                            details: device_details.trim().to_string(),
                         };
                         devices.push(device);
                     }
