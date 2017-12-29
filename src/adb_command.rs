@@ -22,6 +22,12 @@ impl AdbCommand {
         AdbCommand { args, ..self }
     }
 
+    pub fn with_arg(self, arg: String) -> Self {
+        let mut args = self.args;
+        args.push(arg);
+        AdbCommand { args, ..self }
+    }
+
     pub fn with_device_id(self, device_id: Option<String>) -> Self {
         AdbCommand { device_id, ..self }
     }

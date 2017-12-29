@@ -11,7 +11,7 @@ pub struct Device {
 impl Device {
     pub fn list_devices() -> Result<Vec<Device>, Error> {
         let output = AdbCommand::command("devices".to_string())
-            .with_args(vec!["-l".to_string()])
+            .with_arg("-l".to_string())
             .execute()?;
 
         return Ok(Device::parse_devices(output));
