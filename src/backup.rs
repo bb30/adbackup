@@ -102,9 +102,9 @@ impl Backup {
                 !x.contains("package:com.android.") && !x.contains("package:com.google.android.")
             })
             .for_each(|package| {
-                let splitted_package = package.split(':').collect::<Vec<&str>>();
+                let split_package = package.split(':').collect::<Vec<&str>>();
 
-                if let Some(package_name) = splitted_package.get(1) {
+                if let Some(package_name) = split_package.get(1) {
                     result.push(package_name.to_string());
                 }
             });
