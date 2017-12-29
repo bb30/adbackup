@@ -143,8 +143,8 @@ fn param_from_match(
     matches: &ArgMatches,
     subm: Option<&ArgMatches>,
 ) -> Option<String> {
-    if subm.is_some() {
-        if let Some(param) = subm.unwrap().value_of(param) {
+    if let Some(subm) = subm {
+        if let Some(param) = subm.value_of(param) {
             return Some(param.to_string());
         }
     }
