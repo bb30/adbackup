@@ -19,12 +19,6 @@ fn main() {
     let matches = make_clap().get_matches();
 
     let (sub_name, subm) = matches.subcommand();
-    let sub_fn = match sub_name {
-        "devices" => print_devices,
-        "backup" => backup,
-        "apps" => apps,
-        _ => unimplemented!(),
-    };
 
     let mut verbosity = matches.occurrences_of("verbose");
     if let Some(subm) = subm {
@@ -33,7 +27,13 @@ fn main() {
 
     adbackup::setup_logging(verbosity);
 
-    let result = sub_fn(&matches, subm);
+    let result = match sub_name {
+        "devices" => print_devices(),
+        "backup" => backup(&matches, subm),
+        "apps" => apps(&matches, subm),
+        _ => unimplemented!(),
+    };
+
     if let Some(error) = result.err() {
         error!("adbackup finished with error: {}", error.to_string());
     }
@@ -109,7 +109,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
         )
 }
 
-fn print_devices(_: &ArgMatches, _: Option<&ArgMatches>) -> Result<(), Error> {
+fn print_devices() -> Result<(), Error> {
     let devices = adbackup::get_printable_device_list()?;
     info!("{}", devices);
 
