@@ -86,7 +86,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
                 )
                 .arg(
                     Arg::with_name("only_specified")
-                        .help("Include only the specified apps into the backup")
+                        .help("Include only the specified app into the backup")
                         .long("specified")
                         .short("o")
                         .takes_value(true)
@@ -142,7 +142,7 @@ fn param_from_match<'a>(
     param: &'a str,
     matches: &'a ArgMatches,
     subm: Option<&'a ArgMatches>,
-) -> Option<&'a str>  {
+) -> Option<&'a str> {
     if let Some(subm) = subm {
         if let Some(param) = subm.value_of(param) {
             return Some(param);

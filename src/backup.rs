@@ -8,7 +8,7 @@ pub struct BackupOptions<'a> {
     applications: &'a str,
     shared_storage: &'a str,
     system_apps: &'a str,
-    only_specified_apps: &'a str,
+    only_specified_app: &'a str,
 }
 
 impl<'a> BackupOptions<'a> {
@@ -18,7 +18,7 @@ impl<'a> BackupOptions<'a> {
             applications: "-noapk",
             shared_storage: "-noshared",
             system_apps: "-nosystem",
-            only_specified_apps: "-all",
+            only_specified_app: "-all",
         }
     }
 
@@ -50,9 +50,9 @@ impl<'a> BackupOptions<'a> {
         }
     }
 
-    pub fn with_only_specified_apps(self, apps: &'a str) -> Self {
+    pub fn with_only_specified_app(self, apps: &'a str) -> Self {
         BackupOptions {
-            only_specified_apps: apps,
+            only_specified_app: apps,
             ..self
         }
     }
@@ -68,7 +68,7 @@ impl Backup {
             &backup_options.shared_storage,
             &backup_options.system_apps,
             &backup_options.applications,
-            &backup_options.only_specified_apps,
+            &backup_options.only_specified_app,
         ];
 
         let adb_command = AdbCommand::command("backup")

@@ -106,7 +106,7 @@ pub fn backup(
         backup_options = backup_options.with_system_apps();
     }
     if let Some(only_specified) = only_specified {
-        backup_options = backup_options.with_only_specified_apps(only_specified);
+        backup_options = backup_options.with_only_specified_app(only_specified);
     }
 
     Backup::backup(backup_options)?;
