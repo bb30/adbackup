@@ -138,19 +138,19 @@ fn apps(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     Ok(())
 }
 
-fn param_from_match(
-    param: &str,
-    matches: &ArgMatches,
-    subm: Option<&ArgMatches>,
-) -> Option<String> {
+fn param_from_match<'a>(
+    param: &'a str,
+    matches: &'a ArgMatches,
+    subm: Option<&'a ArgMatches>,
+) -> Option<&'a str>  {
     if let Some(subm) = subm {
         if let Some(param) = subm.value_of(param) {
-            return Some(param.to_string());
+            return Some(param);
         }
     }
 
     if let Some(param) = matches.value_of(param) {
-        return Some(param.to_string());
+        return Some(param);
     }
 
     None

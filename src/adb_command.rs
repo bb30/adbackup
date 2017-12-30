@@ -3,14 +3,14 @@ use std::process::{Command, Stdio};
 use failure::{err_msg, Error};
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct AdbCommand {
-    command: String,
-    device_id: Option<String>,
-    args: Vec<String>,
+pub struct AdbCommand<'a> {
+    command: &'a str,
+    device_id: Option<&'a str>,
+    args: Vec<&'a str>,
 }
 
-impl AdbCommand {
-    pub fn command(command: String) -> Self {
+impl<'a> AdbCommand<'a> {
+    pub fn command(command: &'a str) -> Self {
         AdbCommand {
             command,
             device_id: None,
@@ -18,17 +18,17 @@ impl AdbCommand {
         }
     }
 
-    pub fn with_args(self, args: Vec<String>) -> Self {
+    pub fn with_args(self, args: Vec<&'a str>) -> Self {
         AdbCommand { args, ..self }
     }
 
-    pub fn with_arg(self, arg: String) -> Self {
+    pub fn with_arg(self, arg: &'a str) -> Self {
         let mut args = self.args;
         args.push(arg);
         AdbCommand { args, ..self }
     }
 
-    pub fn with_device_id(self, device_id: Option<String>) -> Self {
+    pub fn with_device_id(self, device_id: Option<&'a str>) -> Self {
         AdbCommand { device_id, ..self }
     }
 

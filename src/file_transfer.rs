@@ -6,9 +6,9 @@ use adb_command::AdbCommand;
 pub struct FileTransfer {}
 
 impl FileTransfer {
-    pub fn pull(device_id: Option<String>, path: String) -> Result<(), Error> {
-        AdbCommand::command("pull".to_string())
-            .with_args(vec![path, "-a".to_string()])
+    pub fn pull(device_id: Option<&str>, path: &str) -> Result<(), Error> {
+        AdbCommand::command("pull")
+            .with_args(vec![path, "-a"])
             .with_device_id(device_id)
             .execute()?;
 
@@ -16,11 +16,11 @@ impl FileTransfer {
     }
 
     pub fn push(
-        device_id: Option<String>,
-        src_path: String,
-        dst_path: String,
+        device_id: Option<&str>,
+        src_path: &str,
+        dst_path: &str,
     ) -> Result<(), Error> {
-        AdbCommand::command("push".to_string())
+        AdbCommand::command("push")
             .with_args(vec![src_path, dst_path])
             .with_device_id(device_id)
             .execute()?;
@@ -38,7 +38,7 @@ mod tests {
     fn test_simple_pull() {
         if Device::list_devices().unwrap().len() > 0 {
             assert!(
-                FileTransfer::pull(Some("emulator-5554".to_string()), "/sdcard/la/".to_string())
+                FileTransfer::pull(Some("emulator-5554"), "/sdcard/la/")
                     .is_ok()
             )
         }
@@ -49,9 +49,9 @@ mod tests {
         if Device::list_devices().unwrap().len() > 0 {
             assert!(
                 FileTransfer::push(
-                    Some("emulator-5554".to_string()),
-                    "Cargo.toml".to_string(),
-                    "/sdcard/la/".to_string()
+                    Some("emulator-5554"),
+                    "Cargo.toml",
+                    "/sdcard/la/",
                 ).is_ok()
             )
         }

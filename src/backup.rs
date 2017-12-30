@@ -3,26 +3,26 @@ use failure::Error;
 use adb_command::AdbCommand;
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct BackupOptions {
-    device_id: Option<String>,
-    applications: String,
-    shared_storage: String,
-    system_apps: String,
-    only_specified_apps: String,
+pub struct BackupOptions<'a> {
+    device_id: Option<&'a str>,
+    applications: &'a str,
+    shared_storage: &'a str,
+    system_apps: &'a str,
+    only_specified_apps: &'a str,
 }
 
-impl BackupOptions {
+impl<'a> BackupOptions<'a> {
     pub fn default() -> Self {
         BackupOptions {
             device_id: None,
-            applications: "-noapk".to_string(),
-            shared_storage: "-noshared".to_string(),
-            system_apps: "-nosystem".to_string(),
-            only_specified_apps: "-all".to_string(),
+            applications: "-noapk",
+            shared_storage: "-noshared",
+            system_apps: "-nosystem",
+            only_specified_apps: "-all",
         }
     }
 
-    pub fn with_device_id(self, device_id: String) -> Self {
+    pub fn with_device_id(self, device_id: &'a str) -> Self {
         BackupOptions {
             device_id: Some(device_id),
             ..self
@@ -31,26 +31,26 @@ impl BackupOptions {
 
     pub fn with_applications(self) -> Self {
         BackupOptions {
-            applications: "-apk".to_string(),
+            applications: "-apk",
             ..self
         }
     }
 
     pub fn with_shared_storage(self) -> Self {
         BackupOptions {
-            shared_storage: "-shared".to_string(),
+            shared_storage: "-shared",
             ..self
         }
     }
 
     pub fn with_system_apps(self) -> Self {
         BackupOptions {
-            system_apps: "-system".to_string(),
+            system_apps: "-system",
             ..self
         }
     }
 
-    pub fn with_only_specified_apps(self, apps: String) -> Self {
+    pub fn with_only_specified_apps(self, apps: &'a str) -> Self {
         BackupOptions {
             only_specified_apps: apps,
             ..self
@@ -63,15 +63,15 @@ pub struct Backup {}
 
 impl Backup {
     pub fn backup(backup_options: BackupOptions) -> Result<(), Error> {
-        let command_args = vec![
-            backup_options.applications.clone(),
-            backup_options.shared_storage.clone(),
-            backup_options.system_apps.clone(),
-            backup_options.applications.clone(),
-            backup_options.only_specified_apps.clone(),
+        let command_args: Vec<&str> = vec![
+            &backup_options.applications,
+            &backup_options.shared_storage,
+            &backup_options.system_apps,
+            &backup_options.applications,
+            &backup_options.only_specified_apps,
         ];
 
-        let adb_command = AdbCommand::command("backup".to_string())
+        let adb_command = AdbCommand::command("backup")
             .with_args(command_args)
             .with_device_id(backup_options.device_id);
 
@@ -80,10 +80,10 @@ impl Backup {
         Ok(())
     }
 
-    pub fn list_apps(device_id: Option<String>) -> Result<Vec<String>, Error> {
-        let args = vec!["pm".to_string(), "list".to_string(), "packages".to_string()];
+    pub fn list_apps(device_id: Option<&str>) -> Result<Vec<String>, Error> {
+        let args: Vec<&str> = vec!["pm", "list", "packages"];
 
-        let output = AdbCommand::command("shell".to_string())
+        let output = AdbCommand::command("shell")
             .with_args(args)
             .with_device_id(device_id)
             .execute()?;

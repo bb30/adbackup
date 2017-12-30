@@ -56,7 +56,7 @@ pub fn get_printable_device_list() -> Result<String, Error> {
     }
 }
 
-pub fn get_printable_app_list(device_id: Option<String>) -> Result<String, Error> {
+pub fn get_printable_app_list(device_id: Option<&str>) -> Result<String, Error> {
     check_too_much_devices(&device_id)?;
 
     let apps = Backup::list_apps(device_id)?;
@@ -83,11 +83,11 @@ pub fn get_printable_app_list(device_id: Option<String>) -> Result<String, Error
 }
 
 pub fn backup(
-    device_id: Option<String>,
-    apk: Option<String>,
-    shared: Option<String>,
-    system: Option<String>,
-    only_specified: Option<String>,
+    device_id: Option<&str>,
+    apk: Option<&str>,
+    shared: Option<&str>,
+    system: Option<&str>,
+    only_specified: Option<&str>,
 ) -> Result<String, Error> {
     check_too_much_devices(&device_id)?;
 
@@ -117,7 +117,7 @@ pub fn backup(
     Ok(String::from(backup_finished))
 }
 
-fn check_too_much_devices(device_id: &Option<String>) -> Result<(), Error> {
+fn check_too_much_devices(device_id: &Option<&str>) -> Result<(), Error> {
     if device_id.is_none() && devices::Device::list_devices()?.len() > 1 {
         let error =
             "More than one device connected and no device provided.\n \

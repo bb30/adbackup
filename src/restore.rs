@@ -6,9 +6,9 @@ use adb_command::AdbCommand;
 pub struct Restore {}
 
 impl Restore {
-    pub fn restore(device_id: Option<String>) -> Result<(), Error> {
-        AdbCommand::command("restore".to_string())
-            .with_args(vec!["backup.ab".to_string()])
+    pub fn restore(device_id: Option<&str>) -> Result<(), Error> {
+        AdbCommand::command("restore")
+            .with_arg("backup.ab")
             .with_device_id(device_id)
             .execute()?;
 
@@ -24,7 +24,7 @@ mod tests {
     //#[test]
     fn test_simple_restore() {
         if Device::list_devices().unwrap().len() > 0 {
-            assert!(Restore::restore(Some("emulator-5554".to_string())).is_ok())
+            assert!(Restore::restore(Some("emulator-5554")).is_ok())
         }
     }
 }
