@@ -35,6 +35,6 @@ If the device is connected to the computer start another try with `adbackup devi
 
 ## Limitations
 Every app developer can specify if it is possible to backup the app in general or just parts of it or can completely 
-disable it, [here]([auto backup mechanism](https://developer.android.com/guide/topics/data/autobackup.html)) you can 
+disable it, [here](https://developer.android.com/guide/topics/data/autobackup.html) you can 
 read more about it. Because of that, it could be possible, that not every app on the device an be backed up. But until 
 know, there is no better way to do android backups without rooting the device.  
