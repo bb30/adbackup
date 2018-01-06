@@ -117,6 +117,25 @@ pub fn backup(
     Ok(String::from(backup_finished))
 }
 
+
+pub fn pull(device_id: Option<&str>, path: &str) -> Result<String, Error> {
+    file_transfer::FileTransfer::pull(device_id, path)?;
+
+    let pull_finished = "Pulling path finished.";
+    info!("{}", pull_finished);
+
+    Ok(String::from(pull_finished))
+}
+
+pub fn push(device_id: Option<&str>, src_path: &str, dst_path: &str) -> Result<String, Error> {
+    file_transfer::FileTransfer::push(device_id, src_path, dst_path)?;
+
+    let push_finished = format!("Pushing from {} to {} finished.", src_path, dst_path);
+    info!("{}", push_finished);
+
+    Ok(String::from(push_finished))
+}
+
 fn check_too_much_devices(device_id: &Option<&str>) -> Result<(), Error> {
     if device_id.is_none() && devices::Device::list_devices()?.len() > 1 {
         let error =

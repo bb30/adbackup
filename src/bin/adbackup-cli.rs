@@ -13,7 +13,7 @@ extern crate adbackup;
 
 extern crate failure;
 
-use failure::Error;
+use failure::{Error, err_msg};
 
 fn main() {
     let matches = make_clap().get_matches();
@@ -31,6 +31,8 @@ fn main() {
         "devices" => print_devices(),
         "backup" => backup(&matches, subm),
         "apps" => apps(&matches, subm),
+        "push" => push(&matches, subm),
+        "pull" => pull(&matches, subm),
         _ => unimplemented!(),
     };
 
@@ -102,8 +104,35 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
                 .help("List all android devices connected to your pc with enabled debug mode."),
         )
         .subcommand(
-            SubCommand::with_name("apps")
+            SubCommand::with_name("pull")
                 .display_order(3)
+                .about("Pull file/folder from device")
+                .arg(device_arg())
+                .arg(
+                    Arg::with_name("target")
+                        .help("Target file/folder")
+                        .required(true),
+                )
+        )
+        .subcommand(
+            SubCommand::with_name("push")
+                .display_order(4)
+                .about("Push file/folder to device")
+                .arg(device_arg())
+                .arg(
+                    Arg::with_name("source")
+                        .help("Source file/folder")
+                        .required(true),
+                )
+                .arg(
+                    Arg::with_name("target")
+                        .help("Target file/folder")
+                        .required(true),
+                )
+        )
+        .subcommand(
+            SubCommand::with_name("apps")
+                .display_order(5)
                 .about("List all installed apps on devices")
                 .arg(device_arg()),
         )
@@ -136,6 +165,39 @@ fn apps(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     info!("{}", apps);
 
     Ok(())
+}
+
+
+fn pull(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
+    let device_id = param_from_match("device", matches, subm);
+    let target = param_from_match("target", matches, subm);
+
+    if let Some(target) = target {
+        let result = adbackup::pull(device_id, target)?;
+        info!("{}", result);
+
+        return Ok(());
+    }
+
+    Err(err_msg("Target not specified")) // is not possible from cmd because it is required
+}
+
+
+fn push(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
+    let device_id = param_from_match("device", matches, subm);
+    let source = param_from_match("source", matches, subm);
+    let target = param_from_match("target", matches, subm);
+
+    if let Some(source) = source {
+        if let Some(target) = target {
+            let result = adbackup::push(device_id, source, target)?;
+            info!("{}", result);
+
+            return Ok(());
+        }
+    }
+
+    Err(err_msg("Source or target not specified")) // is not possible from cmd because it is required
 }
 
 fn param_from_match<'a>(
