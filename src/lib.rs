@@ -119,6 +119,8 @@ pub fn backup(
 
 
 pub fn pull(device_id: Option<&str>, path: &str) -> Result<String, Error> {
+    check_too_much_devices(&device_id)?;
+
     file_transfer::FileTransfer::pull(device_id, path)?;
 
     let pull_finished = "Pulling path finished.";
@@ -128,6 +130,8 @@ pub fn pull(device_id: Option<&str>, path: &str) -> Result<String, Error> {
 }
 
 pub fn push(device_id: Option<&str>, src_path: &str, dst_path: &str) -> Result<String, Error> {
+    check_too_much_devices(&device_id)?;
+
     file_transfer::FileTransfer::push(device_id, src_path, dst_path)?;
 
     let push_finished = format!("Pushing from {} to {} finished.", src_path, dst_path);
