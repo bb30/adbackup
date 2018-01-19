@@ -28,11 +28,11 @@ fn main() {
     adbackup::setup_logging(verbosity);
 
     let result = match sub_name {
-        "devices" => print_devices(),
         "backup" => backup(&matches, subm),
-        "apps" => apps(&matches, subm),
+        "devices" => print_devices(),
         "push" => push(&matches, subm),
         "pull" => pull(&matches, subm),
+        "apps" => apps(&matches, subm),
         _ => unimplemented!(),
     };
 
@@ -106,27 +106,27 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
         .subcommand(
             SubCommand::with_name("pull")
                 .display_order(3)
-                .about("Pull file/folder from device")
+                .about("Pull file/folder from android into current folder of your pc")
                 .arg(device_arg())
                 .arg(
-                    Arg::with_name("target")
-                        .help("Target file/folder")
+                    Arg::with_name("source")
+                        .help("Source file/folder on the android device")
                         .required(true),
                 )
         )
         .subcommand(
             SubCommand::with_name("push")
                 .display_order(4)
-                .about("Push file/folder to device")
+                .about("Push file/folder from the pc to a connected android device")
                 .arg(device_arg())
                 .arg(
                     Arg::with_name("source")
-                        .help("Source file/folder")
+                        .help("Source file/folder on your pc which should be pushed to android")
                         .required(true),
                 )
                 .arg(
                     Arg::with_name("target")
-                        .help("Target file/folder")
+                        .help("Target folder on the android device")
                         .required(true),
                 )
         )
