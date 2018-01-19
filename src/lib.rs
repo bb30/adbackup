@@ -140,6 +140,17 @@ pub fn push(device_id: Option<&str>, src_path: &str, dst_path: &str) -> Result<S
     Ok(String::from(push_finished))
 }
 
+pub fn restore(device_id: Option<&str>) -> Result<String, Error> {
+    check_too_much_devices(&device_id)?;
+
+    restore::Restore::restore(device_id)?;
+
+    let push_finished = format!("Restoring finished.");
+    info!("{}", push_finished);
+
+    Ok(String::from(push_finished))
+}
+
 fn check_too_much_devices(device_id: &Option<&str>) -> Result<(), Error> {
     if device_id.is_none() && devices::Device::list_devices()?.len() > 1 {
         let error =

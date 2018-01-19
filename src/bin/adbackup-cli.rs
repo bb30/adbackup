@@ -29,6 +29,7 @@ fn main() {
 
     let result = match sub_name {
         "backup" => backup(&matches, subm),
+        "restore" => restore(&matches, subm),
         "devices" => print_devices(),
         "push" => push(&matches, subm),
         "pull" => pull(&matches, subm),
@@ -97,15 +98,21 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("devices")
+            SubCommand::with_name("restore")
                 .display_order(2)
+                .about("Restore android backup")
+                .arg(device_arg()),
+        )
+        .subcommand(
+            SubCommand::with_name("devices")
+                .display_order(3)
                 .about("List connected devices")
                 .arg(device_arg())
                 .help("List all android devices connected to your pc with enabled debug mode."),
         )
         .subcommand(
             SubCommand::with_name("pull")
-                .display_order(3)
+                .display_order(4)
                 .about("Pull file/folder from android into current folder of your pc")
                 .arg(device_arg())
                 .arg(
@@ -116,7 +123,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
         )
         .subcommand(
             SubCommand::with_name("push")
-                .display_order(4)
+                .display_order(5)
                 .about("Push file/folder from the pc to a connected android device")
                 .arg(device_arg())
                 .arg(
@@ -132,7 +139,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
         )
         .subcommand(
             SubCommand::with_name("apps")
-                .display_order(5)
+                .display_order(6)
                 .about("List all installed apps on devices")
                 .arg(device_arg()),
         )
@@ -198,6 +205,15 @@ fn push(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     }
 
     Err(err_msg("Source or target not specified")) // is not possible from cmd because it is required
+}
+
+fn restore(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
+    let device_id = param_from_match("device", matches, subm);
+
+    let result = adbackup::restore(device_id)?;
+    info!("{}", result);
+
+    return Ok(());
 }
 
 fn param_from_match<'a>(
