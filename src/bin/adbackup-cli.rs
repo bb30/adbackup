@@ -177,7 +177,7 @@ fn apps(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
 
 fn pull(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     let device_id = param_from_match("device", matches, subm);
-    let target = param_from_match("target", matches, subm);
+    let target = param_from_match("source", matches, subm);
 
     if let Some(target) = target {
         let result = adbackup::pull(device_id, target)?;
