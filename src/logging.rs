@@ -16,7 +16,7 @@ pub fn setup_logging(verbosity: u64) -> Result<(), fern::InitError> {
             base_config
                 .level(log::LogLevelFilter::Info)
                 .level_for("overly-verbose-target", log::LogLevelFilter::Warn)
-        }
+        },
         1 => base_config
             .level(log::LogLevelFilter::Debug)
             .level_for("overly-verbose-target", log::LogLevelFilter::Info),

@@ -4,6 +4,7 @@ mod backup;
 mod restore;
 mod adb_command;
 mod file_transfer;
+mod database;
 
 extern crate chrono;
 extern crate fern;
@@ -16,6 +17,7 @@ extern crate log;
 extern crate hamcrest;
 
 extern crate failure;
+#[macro_use] extern crate failure_derive;
 
 use failure::{err_msg, Error};
 
@@ -32,7 +34,7 @@ pub fn setup_logging(verbosity: u64) {
 pub fn get_printable_device_list() -> Result<String, Error> {
     use devices::Device;
     let devices = Device::list_devices()?;
-
+    
     if devices.len() > 0 {
         let devices_found = "Found the following devices:";
         info!("{}", devices_found);
