@@ -46,17 +46,17 @@ impl<'a> AdbCommand<'a> {
 
         trace!("Executing command: {}", self.command);
 
-        let output = command.stdout(Stdio::piped()).spawn()?.wait_with_output()?;
+        let output = command.stderr(Stdio::piped()).output()?;
 
         if output.status.success() {
-            let output_message = String::from_utf8(output.stdout)?;
+            let output_message = String::from_utf8_lossy(&output.stdout);
             trace!("output message from {}: {}", self.command, output_message);
-            Ok(output_message)
+            Ok(output_message.to_string())
         } else {
-            let error_output = String::from_utf8(output.stderr)?;
+            let error_message = String::from_utf8_lossy(&output.stderr);
             return Err(err_msg(format!(
-                "Error executing {} {}",
-                self.command, error_output
+                "Error executing {}.\n {}",
+                self.command, error_message
             )));
         }
     }
