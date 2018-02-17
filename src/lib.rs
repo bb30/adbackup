@@ -4,6 +4,7 @@ mod backup;
 mod restore;
 mod adb_command;
 mod file_transfer;
+mod ab_extracting;
 
 extern crate chrono;
 extern crate fern;
@@ -16,6 +17,8 @@ extern crate log;
 extern crate hamcrest;
 
 extern crate failure;
+
+extern crate tar;
 
 use failure::{err_msg, Error};
 
