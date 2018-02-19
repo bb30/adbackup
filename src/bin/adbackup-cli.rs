@@ -26,7 +26,7 @@ fn main() {
     }
 
     adbackup::setup_logging(verbosity);
-    
+
     let result = match sub_name {
         "backup" => backup(&matches, subm),
         "restore" => restore(&matches, subm),
