@@ -32,7 +32,6 @@ impl DatabaseMigrator {
 
     pub fn migrate(conn: &Connection, current_version: u32) -> Result<(), Error> {
         if current_version > CURRENT_VERSION {
-            // FIXME v1 is there a better way to convert between these types?
             return Err(Error::from(MigratorError::UnknownDatabaseVersion { version: current_version }))
         }
 

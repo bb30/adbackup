@@ -19,13 +19,11 @@ extern crate hamcrest;
 extern crate failure;
 #[macro_use] extern crate failure_derive;
 
-use failure::{err_msg, Error};
-
 use backup::Backup;
-
-use restore::Restore;
-
 use database::management::DatabaseManager;
+use devices::Device;
+use failure::{err_msg, Error};
+use restore::Restore;
 
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
@@ -36,7 +34,6 @@ pub fn setup_logging(verbosity: u64) {
 }
 
 pub fn get_printable_device_list() -> Result<String, Error> {
-    use devices::Device;
     let devices = Device::list_devices()?;
     
     if devices.len() > 0 {
@@ -59,6 +56,23 @@ pub fn get_printable_device_list() -> Result<String, Error> {
         warn!("{}", no_devices_found);
 
         Ok(String::from(no_devices_found))
+    }
+}
+
+pub fn get_device_id() -> Result<String, Error> {
+    check_too_many_devices(&None)?;
+
+    let devices = Device::list_devices()?;
+    
+    if let Some(first_device) = devices.first() {
+        Ok(first_device.id.clone())
+    } else {
+        let no_device_found =
+            "No device found. Make sure that you connect one device with enabled \
+             debug options.";
+        warn!("{}", no_device_found);
+
+        Err(err_msg(no_device_found))
     }
 }
 
@@ -89,19 +103,16 @@ pub fn get_printable_app_list(device_id: Option<&str>) -> Result<String, Error> 
 }
 
 pub fn backup(
-    device_id: Option<&str>,
+    device_id: &str,
     apk: Option<&str>,
     shared: Option<&str>,
     system: Option<&str>,
     only_specified: Option<&str>,
 ) -> Result<String, Error> {
-    check_too_many_devices(&device_id)?;
+    check_too_many_devices(&Some(device_id))?;
 
-    let mut backup_options = backup::BackupOptions::default();
-
-    if let Some(device_id) = device_id {
-        backup_options = backup_options.with_device_id(device_id);
-    }
+    let mut backup_options = backup::BackupOptions::default(device_id);
+    
     if let Some(_) = apk {
         backup_options = backup_options.with_applications();
     }
@@ -117,12 +128,8 @@ pub fn backup(
 
     Backup::backup(backup_options)?;
 
-    // FIXME v1 why is device_id optional? a backup without a device id should not be possible (even if there is just one device attached, we can get its id)
-    // also: maybe the backup file should be named after the device id (like the sqlite database) so we can be sure to only restore matching backups
-    if let Some(device_id) = device_id {
-        let db_manager = DatabaseManager::open_connection(&device_id)?;
-        db_manager.insert_data("backup.ab")?;
-    }
+    let db_manager = DatabaseManager::open_connection(&device_id)?;
+    db_manager.insert_data(&format!("{}.ab", device_id))?;
 
     let backup_finished = "Backup finished.";
     info!("{}", backup_finished);
@@ -130,13 +137,11 @@ pub fn backup(
     Ok(String::from(backup_finished))
 }
 
-pub fn restore(device_id: Option<&str>) -> Result<String, Error> {
-    check_too_many_devices(&device_id)?;
+pub fn restore(device_id: &str) -> Result<String, Error> {
+    check_too_many_devices(&Some(device_id))?;
 
-    if let Some(device_id) = device_id {
-        let db_manager = DatabaseManager::open_connection(&device_id)?;
-        db_manager.get_latest_backup("backup.ab")?;
-    }
+    let db_manager = DatabaseManager::open_connection(&device_id)?;
+    db_manager.get_latest_backup(&format!("{}.ab", device_id))?;
 
     Restore::restore(device_id)?;
 

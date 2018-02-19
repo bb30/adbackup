@@ -35,6 +35,7 @@ mod tests {
     use file_transfer::FileTransfer;
 
     //#[test]
+    #[allow(dead_code)]
     fn test_simple_pull() {
         if Device::list_devices().unwrap().len() > 0 {
             assert!(
@@ -45,6 +46,7 @@ mod tests {
     }
 
     //#[test]
+    #[allow(dead_code)]
     fn test_simple_push() {
         if Device::list_devices().unwrap().len() > 0 {
             assert!(

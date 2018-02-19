@@ -159,7 +159,12 @@ fn backup(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> 
     let system = param_from_match("system", matches, subm);
     let only_specified = param_from_match("only_specified", matches, subm);
 
-    let backup = adbackup::backup(device_id, apk, shared, system, only_specified)?;
+    let device_id = match device_id {
+        Some(id) => String::from(id),
+        None => adbackup::get_device_id()?
+    };
+
+    let backup = adbackup::backup(&device_id, apk, shared, system, only_specified)?;
     info!("{}", backup);
 
     Ok(())
@@ -167,7 +172,13 @@ fn backup(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> 
 
 fn restore(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     let device_id = param_from_match("device", matches, subm);
-    let restore = adbackup::restore(device_id)?;
+
+    let device_id = match device_id {
+        Some(id) => String::from(id),
+        None => adbackup::get_device_id()?
+    };
+
+    let restore = adbackup::restore(&device_id)?;
     info!("{}", restore);
 
     Ok(())
