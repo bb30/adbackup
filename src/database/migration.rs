@@ -1,7 +1,7 @@
 use database::rusqlite::Connection;
 use failure::Error;
 
-static CURRENT_VERSION: u32 = 1;
+pub static CURRENT_VERSION: u32 = 1;
 
 #[derive(Debug, Fail)]
 pub enum MigratorError {

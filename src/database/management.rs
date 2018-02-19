@@ -12,8 +12,12 @@ pub struct DatabaseManager {
 }
 
 impl DatabaseManager {
-    pub fn open_connection(device_id: &str) -> Result<DatabaseManager, Error> {
-        let database_name = format!("{}.db", device_id);
+    pub fn open_connection(name: &str) -> Result<DatabaseManager, Error> {
+        let database_name = match name.ends_with(".db") {
+            true => String::from(name),
+            false => format!("{}.db", name)
+        };
+        
         let conn = Connection::open(&database_name)?;
         let version = match DatabaseMigrator::get_database_version(&conn) {
             Ok(v) => v,
@@ -74,5 +78,54 @@ impl DatabaseManager {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use database::management::DatabaseManager;
+    use database::migration::CURRENT_VERSION;
+    use std::fs::{copy, File, remove_file};
+    use std::io::{Read, Write};
 
-// test: open dummy-db, insert dummy data and then other dummy data with same hash and check if getting the data results is equal to the second insert
+    #[test]
+    fn test_data_insertion_and_retrieval() {
+        let current_db_name = format!("tests/test_databases/dummy_db_v{}.db", CURRENT_VERSION);
+        let temp_db = "847f7b63b0325d18e3b628e4604b6be4.db"; // md5 of 'test_data_insertion_and_retrieval'
+
+        assert!(copy(current_db_name, temp_db).is_ok());
+
+        let first_data_file = "356779463358b0ea3c8d45c975c54981";
+        let second_data_file = "9905268f4a804227b64bd01716b599f6";
+        let output_data_file = "9c462f205ae62c436ca700332dd009b4";
+
+        {
+            let db_manager = DatabaseManager::open_connection(temp_db).unwrap();
+
+            let mut first_data = File::create(&first_data_file).unwrap();
+            assert!(first_data.write(&vec![00, 01, 02]).is_ok());
+
+            assert!(db_manager.insert_data(&first_data_file).is_ok());
+
+            
+            let mut second_data = File::create(&second_data_file).unwrap();
+            assert!(second_data.write(&vec![03, 04, 05]).is_ok());
+
+            assert!(db_manager.insert_data(&second_data_file).is_ok());
+            
+            assert!(db_manager.get_latest_backup(&output_data_file).is_ok());
+        }
+
+        let mut file_wanted = File::open(&second_data_file).unwrap();
+        let mut data_wanted = Vec::new();
+        assert!(file_wanted.read_to_end(&mut data_wanted).is_ok());
+
+        let mut file_result = File::open(&output_data_file).unwrap();
+        let mut data_result = Vec::new();
+        assert!(file_result.read_to_end(&mut data_result).is_ok());
+
+        assert_eq!(data_wanted, data_result);
+
+        assert!(remove_file(&temp_db).is_ok());
+        assert!(remove_file(&first_data_file).is_ok());
+        assert!(remove_file(&second_data_file).is_ok());
+        assert!(remove_file(&output_data_file).is_ok());
+    }
+}
