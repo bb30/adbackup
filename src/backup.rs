@@ -4,7 +4,7 @@ use adb_command::AdbCommand;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct BackupOptions<'a> {
-    device_id: Option<&'a str>,
+    device_id: &'a str,
     applications: &'a str,
     shared_storage: &'a str,
     system_apps: &'a str,
@@ -12,20 +12,13 @@ pub struct BackupOptions<'a> {
 }
 
 impl<'a> BackupOptions<'a> {
-    pub fn default() -> Self {
+    pub fn default(device_id: &'a str) -> Self {
         BackupOptions {
-            device_id: None,
+            device_id: device_id,
             applications: "-noapk",
             shared_storage: "-noshared",
             system_apps: "-nosystem",
             only_specified_app: "-all",
-        }
-    }
-
-    pub fn with_device_id(self, device_id: &'a str) -> Self {
-        BackupOptions {
-            device_id: Some(device_id),
-            ..self
         }
     }
 
@@ -71,12 +64,14 @@ impl Backup {
             &backup_options.only_specified_app,
         ];
 
+        let backup_name = format!("{}.ab", backup_options.device_id);
         let adb_command = AdbCommand::command("backup")
-            .with_args(command_args)
-            .with_device_id(backup_options.device_id);
+                .with_args(command_args)
+                .with_arg("-f").with_arg(&backup_name)
+                .with_device_id(Some(backup_options.device_id));
 
         AdbCommand::execute(adb_command)?;
-
+        
         Ok(())
     }
 
