@@ -1,13 +1,19 @@
 [package]
 name = "adbackup"
-version = "0.1.0"
+version = "0.5.0"
 authors = [
     "Julian Raufelder <julian.raufelder@htwg-konstanz.de>",
     "Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>"
 ]
 
+[lib]
+name ="adbackup"
+path = "src/lib.rs"
+doc = false
+
 [[bin]]
-name = "adbackup"
+name = "adbackup-cli"
+path = "src/bin/adbackup-cli.rs"
 doc = false
 
 [dev-dependencies]
@@ -18,9 +24,15 @@ clap = "~2.19"
 clippy = {version = "0.0.103", optional = true}
 spectral = "0.6.0"
 failure = "0.1.1"
-fern = "0.4.3"
+failure_derive = "0.1.1"
+fern = "0.4.4"
 log = "0.3"
 chrono = "0.4"
+
+[dependencies.rusqlite]
+version = "0.13.0"
+# functions (closures in queries), trace (sqlite tracing), blob (io access to blobs) if needed
+features = ["bundled"]
 
 [features]
 default = []
