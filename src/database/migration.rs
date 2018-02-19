@@ -30,17 +30,17 @@ impl DatabaseMigrator {
             })
     }
 
-    pub fn migrate(conn: &Connection, version: u32) -> Result<(), Error> {
-        if version > CURRENT_VERSION {
+    pub fn migrate(conn: &Connection, current_version: u32) -> Result<(), Error> {
+        if current_version > CURRENT_VERSION {
             // FIXME v1 is there a better way to convert between these types?
-            return Err(Error::from(MigratorError::UnknownDatabaseVersion { version }))
+            return Err(Error::from(MigratorError::UnknownDatabaseVersion { version: current_version }))
         }
 
-        let mut ver = version;
+        let mut ver = current_version;
         while ver < CURRENT_VERSION {
             match ver {
                 0 => Self::to_one_from_none(conn)?,
-                _ => return Err(Error::from(MigratorError::NoMigrationFunction { version }))
+                _ => return Err(Error::from(MigratorError::NoMigrationFunction { version: ver }))
             };
 
             ver += 1;
@@ -64,4 +64,43 @@ impl DatabaseMigrator {
     }
 }
 
-// test: if migration from 0 to 1 works -> push dummy-db to repo and compare it to one created by the migrator (or just check if tables exist for v1), also take newest dummy-db and test if getting the db version results in the current version (constant)
+#[cfg(test)]
+mod tests {
+    use database::rusqlite::Connection;
+    use database::migration::{DatabaseMigrator, CURRENT_VERSION};
+    use std::fs::remove_file;
+
+    #[test]
+    fn test_version_retrieval() {
+        let current_db_name = format!("tests/test_databases/dummy_db_v{}.db", CURRENT_VERSION);
+        let conn = Connection::open(&current_db_name).unwrap();
+        let ver = DatabaseMigrator::get_database_version(&conn);
+
+        assert!(ver.is_ok());
+        assert_eq!(ver.unwrap(), CURRENT_VERSION);
+    }
+
+    #[test]
+    fn test_migration_one_from_zero() {
+        let temp_db = "bf9d29b4cac2a22e1395e1244ac3ed74.db"; // md5 of 'test_migration_one_from_zero'
+        let conn = Connection::open(&temp_db).unwrap();
+
+        assert!(DatabaseMigrator::migrate(&conn, 0).is_ok());
+
+        assert_eq!(DatabaseMigrator::get_database_version(&conn).unwrap(), 1);
+
+        assert!(conn.close().is_ok());
+        assert!(remove_file(&temp_db).is_ok());
+    }
+
+    #[test]
+    fn test_migration_unknown_version() {
+        let temp_db = "5b40b7e6711716091e89a691f1ab726b.db"; // md5 of 'test_migration_unknown_version'
+        let conn = Connection::open(&temp_db).unwrap();
+
+        assert_eq!(format!("{}", DatabaseMigrator::migrate(&conn, CURRENT_VERSION + 1).unwrap_err()), format!("unknown database version: {}", CURRENT_VERSION + 1));
+
+        assert!(conn.close().is_ok());
+        assert!(remove_file(&temp_db).is_ok());
+    }
+}

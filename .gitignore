@@ -8,3 +8,5 @@ adbackup.log
 # backup
 *.ab
 *.db
+
+!**/test_databases/*
