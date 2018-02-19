@@ -5,6 +5,12 @@ authors = [
     "Julian Raufelder <julian.raufelder@htwg-konstanz.de>",
     "Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>"
 ]
+description = "backup tool for android written in rust which can either be used as a module and as a cli-tool"
+documentation = "https://github.com/DonatJR/adbackup/blob/master/README.md"
+repository = "https://github.com/DonatJR/adbackup/"
+readme = "README.md"
+keywords = ["android", "backup"]
+license = "MIT"
 
 [lib]
 name ="adbackup"
