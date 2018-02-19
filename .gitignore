@@ -4,4 +4,7 @@ Cargo.lock
 .idea/
 adbackup.iml
 adbackup.log
+
+# backup
+*.ab
 *.db

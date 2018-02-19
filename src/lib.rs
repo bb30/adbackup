@@ -4,7 +4,7 @@ mod backup;
 mod restore;
 mod adb_command;
 mod file_transfer;
-mod database;
+pub mod database;
 
 extern crate chrono;
 extern crate fern;
@@ -22,6 +22,10 @@ extern crate failure;
 use failure::{err_msg, Error};
 
 use backup::Backup;
+
+use restore::Restore;
+
+use database::management::DatabaseManager;
 
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
@@ -59,7 +63,7 @@ pub fn get_printable_device_list() -> Result<String, Error> {
 }
 
 pub fn get_printable_app_list(device_id: Option<&str>) -> Result<String, Error> {
-    check_too_much_devices(&device_id)?;
+    check_too_many_devices(&device_id)?;
 
     let apps = Backup::list_apps(device_id)?;
 
@@ -91,7 +95,7 @@ pub fn backup(
     system: Option<&str>,
     only_specified: Option<&str>,
 ) -> Result<String, Error> {
-    check_too_much_devices(&device_id)?;
+    check_too_many_devices(&device_id)?;
 
     let mut backup_options = backup::BackupOptions::default();
 
@@ -113,15 +117,38 @@ pub fn backup(
 
     Backup::backup(backup_options)?;
 
+    // FIXME v1 why is device_id optional? a backup without a device id should not be possible (even if there is just one device attached, we can get its id)
+    // also: maybe the backup file should be named after the device id (like the sqlite database) so we can be sure to only restore matching backups
+    if let Some(device_id) = device_id {
+        let db_manager = DatabaseManager::open_connection(&device_id)?;
+        db_manager.insert_data("backup.ab")?;
+    }
+
     let backup_finished = "Backup finished.";
     info!("{}", backup_finished);
 
     Ok(String::from(backup_finished))
 }
 
+pub fn restore(device_id: Option<&str>) -> Result<String, Error> {
+    check_too_many_devices(&device_id)?;
+
+    if let Some(device_id) = device_id {
+        println!("Test");
+        let db_manager = DatabaseManager::open_connection(&device_id)?;
+        db_manager.get_backup("backup.ab")?;
+    }
+
+    Restore::restore(device_id)?;
+
+    let restore_finished = "Restore finished.";
+    info!("{}", restore_finished);
+
+    Ok(String::from(restore_finished))
+}
 
 pub fn pull(device_id: Option<&str>, path: &str) -> Result<String, Error> {
-    check_too_much_devices(&device_id)?;
+    check_too_many_devices(&device_id)?;
 
     file_transfer::FileTransfer::pull(device_id, path)?;
 
@@ -132,7 +159,7 @@ pub fn pull(device_id: Option<&str>, path: &str) -> Result<String, Error> {
 }
 
 pub fn push(device_id: Option<&str>, src_path: &str, dst_path: &str) -> Result<String, Error> {
-    check_too_much_devices(&device_id)?;
+    check_too_many_devices(&device_id)?;
 
     file_transfer::FileTransfer::push(device_id, src_path, dst_path)?;
 
@@ -142,7 +169,7 @@ pub fn push(device_id: Option<&str>, src_path: &str, dst_path: &str) -> Result<S
     Ok(String::from(push_finished))
 }
 
-fn check_too_much_devices(device_id: &Option<&str>) -> Result<(), Error> {
+fn check_too_many_devices(device_id: &Option<&str>) -> Result<(), Error> {
     if device_id.is_none() && devices::Device::list_devices()?.len() > 1 {
         let error =
             "More than one device connected and no device provided.\n \
@@ -154,12 +181,4 @@ fn check_too_much_devices(device_id: &Option<&str>) -> Result<(), Error> {
     }
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 }
