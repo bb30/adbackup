@@ -100,8 +100,8 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
         .subcommand(
             SubCommand::with_name("restore")
                 .display_order(2)
-                .about("Start restore of backup to device")
-                .arg(device_arg())
+                .about("Restore android backup")
+                .arg(device_arg()),
         )
         .subcommand(
             SubCommand::with_name("devices")

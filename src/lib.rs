@@ -4,7 +4,7 @@ mod backup;
 mod restore;
 mod adb_command;
 mod file_transfer;
-pub mod database;
+mod database;
 
 extern crate chrono;
 extern crate fern;
@@ -134,9 +134,8 @@ pub fn restore(device_id: Option<&str>) -> Result<String, Error> {
     check_too_many_devices(&device_id)?;
 
     if let Some(device_id) = device_id {
-        println!("Test");
         let db_manager = DatabaseManager::open_connection(&device_id)?;
-        db_manager.get_backup("backup.ab")?;
+        db_manager.get_latest_backup("backup.ab")?;
     }
 
     Restore::restore(device_id)?;

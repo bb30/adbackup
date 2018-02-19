@@ -12,7 +12,7 @@ fn test_help() {
          -v  Increases logging verbosity each use for up to 3 times\n\n\
         SUBCOMMANDS:\n\
          backup Start backup of device\n\
-         restore Start restore of backup to device\n\
+         restore Restore android backup\n\
          devices List connected devices\n\
          pull Pull file/folder from android into current folder of your pc\n\
          push Push file/folder from the pc to a connected android device\n\

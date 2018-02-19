@@ -52,7 +52,7 @@ impl DatabaseManager {
         Ok(())
     }
 
-    pub fn get_backup(&self, output_file: &str) -> Result<(), Error> {
+    pub fn get_latest_backup(&self, output_file: &str) -> Result<(), Error> {
         if !Path::new(&self.name).exists() {
             return Err(err_msg("Could not open database"));
         }
