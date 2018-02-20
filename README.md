@@ -1,4 +1,4 @@
-# adbackup [![Build Status](https://travis-ci.org/DonatJR/adbackup.svg?branch=master)](https://travis-ci.org/DonatJR/adbackup) [![Build status](https://ci.appveyor.com/api/projects/status/la91b294jegvmejw?svg=true)](https://ci.appveyor.com/project/DonatJR/adbackup)
+# adbackup [![Build Status](https://travis-ci.org/DonatJR/adbackup.svg?branch=master)](https://travis-ci.org/DonatJR/adbackup) [![Build status](https://ci.appveyor.com/api/projects/status/la91b294jegvmejw?svg=true)](https://ci.appveyor.com/project/DonatJR/adbackup) [![Crates.io](https://img.shields.io/crates/v/adbackup.svg)](https://crates.io/crates/adbackup)
 
 backup tool for android written in rust which can either be used as a module and as a cli-tool
 
