@@ -23,7 +23,7 @@ path = "src/bin/adbackup-cli.rs"
 doc = false
 
 [dev-dependencies]
-hamcrest = "*"
+hamcrest = "0.1.5"
 
 [dependencies]
 clap = "~2.19"
