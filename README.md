@@ -30,7 +30,7 @@ Go to
 1. Go back and select the new `Developer options` menu
 1. Activate the developer options at the top of the screen and enable `Android debugging` in the list below
 
-If the device is connected to the computer `adbackup devices` should now list this device.
+If the device is connected to the computer `adbackup devices` should now list this device. Make sure to disable the debugging mode after you are done using `adbackup` to minimize the risk of your device being compromised.
 
 ## Limitations
 Every app developer can specify whether it is possible to backup their app in general, just parts of it or not at all, [here](https://developer.android.com/guide/topics/data/autobackup.html) you can 
