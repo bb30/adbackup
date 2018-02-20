@@ -18,7 +18,7 @@ communicate with android devices. Before using adbackup
 [android developer](https://developer.android.com/studio/releases/platform-tools.html#download) site.
 1. Now add `adb` to your environment variable 
 ([tutorial](https://www.xda-developers.com/adb-fastboot-any-directory-windows-linux/)). 
-1. [Download](FIXME) and install `adbackup`.
+1. [Download](https://github.com/DonatJR/adbackup/releases) and install `adbackup`.
 
 The computer is ready to work with `adbackup`. To check if everything is well configured, type `adbackup devices`.
 
