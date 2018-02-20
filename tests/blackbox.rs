@@ -3,7 +3,7 @@ use std::process::Command;
 #[test]
 fn test_help() {
     let empty_string = "";
-    let mocked_message = "adbackup 0.5.0\nJulian Raufelder <julian.raufelder@htwg-konstanz.de>\
+    let mocked_message = "adbackup 0.5.1\nJulian Raufelder <julian.raufelder@htwg-konstanz.de>\
         :Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>\nA backup tool for android using adb\n\n\
         USAGE:\n adbackup-cli [FLAGS] [SUBCOMMAND]\n\n\
         FLAGS:\n\
