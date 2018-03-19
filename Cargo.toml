@@ -1,13 +1,13 @@
 [package]
 name = "adbackup"
-version = "0.5.1"
+version = "0.5.2"
 authors = [
     "Julian Raufelder <julian.raufelder@htwg-konstanz.de>",
     "Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>"
 ]
 description = "backup tool for android written in rust which can either be used as a module and as a cli-tool"
-documentation = "https://github.com/DonatJR/adbackup/blob/master/README.md"
-repository = "https://github.com/DonatJR/adbackup/"
+documentation = "https://github.com/bb30/adbackup/blob/master/README.md"
+repository = "https://github.com/bb30/adbackup/"
 readme = "README.md"
 keywords = ["android", "backup"]
 license = "MIT"
