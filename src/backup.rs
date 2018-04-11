@@ -14,7 +14,7 @@ pub struct BackupOptions<'a> {
 impl<'a> BackupOptions<'a> {
     pub fn default(device_id: &'a str) -> Self {
         BackupOptions {
-            device_id: device_id,
+            device_id,
             applications: "-noapk",
             shared_storage: "-noshared",
             system_apps: "-nosystem",
@@ -55,7 +55,7 @@ impl<'a> BackupOptions<'a> {
 pub struct Backup {}
 
 impl Backup {
-    pub fn backup(backup_options: BackupOptions) -> Result<(), Error> {
+    pub fn backup(backup_options: &BackupOptions) -> Result<(), Error> {
         let command_args: Vec<&str> = vec![
             &backup_options.applications,
             &backup_options.shared_storage,
@@ -83,10 +83,10 @@ impl Backup {
             .with_device_id(device_id)
             .execute()?;
 
-        return Ok(Backup::parse_list_apps(output));
+        Ok(Backup::parse_list_apps(&output))
     }
 
-    fn parse_list_apps(command_response: String) -> Vec<String> {
+    fn parse_list_apps(command_response: &str) -> Vec<String> {
         let mut result: Vec<String> = Vec::new();
 
         command_response
@@ -137,7 +137,7 @@ mod tests {
         ];
 
         assert_that!(
-            Backup::parse_list_apps(mocked_output.to_string()),
+            Backup::parse_list_apps(mocked_output),
             is(equal_to(mocked_apps))
         )
     }

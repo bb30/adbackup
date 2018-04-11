@@ -14,10 +14,10 @@ impl Device {
             .with_arg("-l")
             .execute()?;
 
-        return Ok(Device::parse_devices(output));
+        Ok(Device::parse_devices(&output))
     }
 
-    fn parse_devices(unparsed_devices: String) -> Vec<Device> {
+    fn parse_devices(unparsed_devices: &str) -> Vec<Device> {
         let mut devices: Vec<Device> = Vec::new();
 
         unparsed_devices
@@ -65,13 +65,13 @@ mod tests {
         let mocked_output = "List of devices attached\nemulator-5554          \
             device product:sdk_google_phone_x86 model:Android_SDK_built_for_x86 device:generic_x86 \
             transport_id:9 \n192.168.2.100:5555     device product:lineage_oneplus3 model:\
-            ONEPLUS_A3003 device:OnePlus3T transport_id:8\n\n".to_string();
+            ONEPLUS_A3003 device:OnePlus3T transport_id:8\n\n";
         assert_that!(Device::parse_devices(mocked_output), is(equal_to(devices)));
     }
 
     #[test]
     fn test_parse_mocked_no_connected_device() {
-        let mocked_output = "List of devices attached\n\n\n".to_string();
+        let mocked_output = "List of devices attached\n\n\n";
         assert_that!(
             Device::parse_devices(mocked_output),
             is(equal_to(Vec::new()))

@@ -13,20 +13,17 @@ pub struct DatabaseManager {
 
 impl DatabaseManager {
     pub fn open_connection(name: &str) -> Result<DatabaseManager, Error> {
-        let database_name = match name.ends_with(".db") {
-            true => String::from(name),
-            false => format!("{}.db", name)
-        };
-        
+        let database_name = if name.ends_with(".db") { String::from(name) } else { format!("{}.db", name) };
+
         let conn = Connection::open(&database_name)?;
         let version = match DatabaseMigrator::get_database_version(&conn) {
             Ok(v) => v,
             Err(_) => 0 // FIXME v1 find a way to only do this if e contains a SqliteFailure with string "table not found"
         };
-    
+
         DatabaseMigrator::migrate(&conn, version)?;
 
-        Ok(DatabaseManager {connection: conn, _version: version, name: database_name} )
+        Ok(DatabaseManager { connection: conn, _version: version, name: database_name })
     }
 
     pub fn insert_data(&self, input_file: &str) -> Result<(), Error> {
@@ -41,8 +38,8 @@ impl DatabaseManager {
             |row| {
                 row.get_checked(0)
             })?.map_err(|e| {
-                Error::from(e)
-            })?;
+            Error::from(e)
+        })?;
 
         // insert file as blob into table (we can use a constant for the data_hash as incremental backups (for which we need to identify single files by their hash) are not yet implementable)
         let mut backup_file = File::open(input_file)?;
@@ -51,7 +48,7 @@ impl DatabaseManager {
 
         self.connection.execute("INSERT INTO device_data (data_hash, version, data)
             VALUES (?1, ?2, ?3)",
-            &[&"const_hash", &(count + 1), &file_bytes])?;
+                                &[&"const_hash", &(count + 1), &file_bytes])?;
 
         Ok(())
     }
@@ -68,8 +65,8 @@ impl DatabaseManager {
             |row| {
                 row.get_checked(0)
             })?.map_err(|e| {
-                Error::from(e)
-            })?;
+            Error::from(e)
+        })?;
 
         let mut file = File::create(output_file)?;
         file.write_all(&data)?;
@@ -104,12 +101,11 @@ mod tests {
 
             assert!(db_manager.insert_data(&first_data_file).is_ok());
 
-            
             let mut second_data = File::create(&second_data_file).unwrap();
             assert!(second_data.write(&vec![03, 04, 05]).is_ok());
 
             assert!(db_manager.insert_data(&second_data_file).is_ok());
-            
+
             assert!(db_manager.get_latest_backup(&output_data_file).is_ok());
         }
 

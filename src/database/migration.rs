@@ -38,7 +38,7 @@ impl DatabaseMigrator {
         let mut ver = current_version;
         while ver < CURRENT_VERSION {
             match ver {
-                0 => Self::to_one_from_none(conn)?,
+                0 => Self::upgrade_to_one_from_none(conn)?,
                 _ => return Err(Error::from(MigratorError::NoMigrationFunction { version: ver }))
             };
 
@@ -48,7 +48,7 @@ impl DatabaseMigrator {
     }
 
     // no database -> v1
-    fn to_one_from_none(conn: &Connection) -> Result<(), Error> {
+    fn upgrade_to_one_from_none(conn: &Connection) -> Result<(), Error> {
         conn.execute("CREATE TABLE adbackup_system (version INTEGER NOT NULL)", &[])?;
         conn.execute("INSERT INTO adbackup_system VALUES(1)", &[])?;
         conn.execute("CREATE TABLE device_data (
