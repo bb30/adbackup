@@ -13,7 +13,7 @@ extern crate adbackup;
 
 extern crate failure;
 
-use failure::{Error, err_msg};
+use failure::{err_msg, Error};
 
 fn main() {
     let matches = make_clap().get_matches();
@@ -119,7 +119,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
                     Arg::with_name("source")
                         .help("Source file/folder on the android device")
                         .required(true),
-                )
+                ),
         )
         .subcommand(
             SubCommand::with_name("push")
@@ -135,7 +135,7 @@ fn make_clap<'a, 'b>() -> clap::App<'a, 'b> {
                     Arg::with_name("target")
                         .help("Target folder on the android device")
                         .required(true),
-                )
+                ),
         )
         .subcommand(
             SubCommand::with_name("apps")
@@ -161,7 +161,7 @@ fn backup(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> 
 
     let device_id = match device_id {
         Some(id) => String::from(id),
-        None => adbackup::get_device_id()?
+        None => adbackup::get_device_id()?,
     };
 
     let backup = adbackup::backup(&device_id, apk, shared, system, only_specified)?;
@@ -175,7 +175,7 @@ fn restore(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error>
 
     let device_id = match device_id {
         Some(id) => String::from(id),
-        None => adbackup::get_device_id()?
+        None => adbackup::get_device_id()?,
     };
 
     let restore = adbackup::restore(&device_id)?;
@@ -193,7 +193,6 @@ fn apps(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     Ok(())
 }
 
-
 fn pull(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     let device_id = param_from_match("device", matches, subm);
     let target = param_from_match("source", matches, subm);
@@ -207,7 +206,6 @@ fn pull(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
 
     Err(err_msg("Target not specified")) // is not possible from cmd because it is required
 }
-
 
 fn push(matches: &ArgMatches, subm: Option<&ArgMatches>) -> Result<(), Error> {
     let device_id = param_from_match("device", matches, subm);

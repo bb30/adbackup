@@ -10,9 +10,7 @@ pub struct Device {
 
 impl Device {
     pub fn list_devices() -> Result<Vec<Device>, Error> {
-        let output = AdbCommand::command("devices")
-            .with_arg("-l")
-            .execute()?;
+        let output = AdbCommand::command("devices").with_arg("-l").execute()?;
 
         Ok(Device::parse_devices(&output))
     }
@@ -57,8 +55,8 @@ mod tests {
             Device {
                 id: "192.168.2.100:5555".to_string(),
                 details:
-                "product:lineage_oneplus3 model:ONEPLUS_A3003 device:OnePlus3T transport_id:8"
-                    .to_string(),
+                    "product:lineage_oneplus3 model:ONEPLUS_A3003 device:OnePlus3T transport_id:8"
+                        .to_string(),
             },
         ];
 

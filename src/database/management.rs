@@ -1,6 +1,6 @@
 use database::migration::DatabaseMigrator;
 use database::rusqlite::Connection;
-use failure::{Error, err_msg};
+use failure::{err_msg, Error};
 use std::io::{Read, Write};
 use std::fs::File;
 use std::path::Path;
@@ -13,17 +13,25 @@ pub struct DatabaseManager {
 
 impl DatabaseManager {
     pub fn open_connection(name: &str) -> Result<DatabaseManager, Error> {
-        let database_name = if name.ends_with(".db") { String::from(name) } else { format!("{}.db", name) };
+        let database_name = if name.ends_with(".db") {
+            String::from(name)
+        } else {
+            format!("{}.db", name)
+        };
 
         let conn = Connection::open(&database_name)?;
         let version = match DatabaseMigrator::get_database_version(&conn) {
             Ok(v) => v,
-            Err(_) => 0 // FIXME v1 find a way to only do this if e contains a SqliteFailure with string "table not found"
+            Err(_) => 0, // FIXME v1 find a way to only do this if e contains a SqliteFailure with string "table not found"
         };
 
         DatabaseMigrator::migrate(&conn, version)?;
 
-        Ok(DatabaseManager { connection: conn, _version: version, name: database_name })
+        Ok(DatabaseManager {
+            connection: conn,
+            _version: version,
+            name: database_name,
+        })
     }
 
     pub fn insert_data(&self, input_file: &str) -> Result<(), Error> {
@@ -32,23 +40,22 @@ impl DatabaseManager {
         }
 
         // check how many files there are in the sqlite database (versioning)
-        let count: u32 = self.connection.query_row(
-            "SELECT COUNT(version) FROM device_data",
-            &[],
-            |row| {
+        let count: u32 = self.connection
+            .query_row("SELECT COUNT(version) FROM device_data", &[], |row| {
                 row.get_checked(0)
-            })?.map_err(|e| {
-            Error::from(e)
-        })?;
+            })?
+            .map_err(|e| Error::from(e))?;
 
         // insert file as blob into table (we can use a constant for the data_hash as incremental backups (for which we need to identify single files by their hash) are not yet implementable)
         let mut backup_file = File::open(input_file)?;
         let mut file_bytes = Vec::new();
         backup_file.read_to_end(&mut file_bytes)?;
 
-        self.connection.execute("INSERT INTO device_data (data_hash, version, data)
+        self.connection.execute(
+            "INSERT INTO device_data (data_hash, version, data)
             VALUES (?1, ?2, ?3)",
-                                &[&"const_hash", &(count + 1), &file_bytes])?;
+            &[&"const_hash", &(count + 1), &file_bytes],
+        )?;
 
         Ok(())
     }
@@ -59,14 +66,13 @@ impl DatabaseManager {
         }
 
         // get blob from database and save as file
-        let data: Vec<u8> = self.connection.query_row(
-            "SELECT data FROM device_data ORDER BY version DESC LIMIT 1",
-            &[],
-            |row| {
-                row.get_checked(0)
-            })?.map_err(|e| {
-            Error::from(e)
-        })?;
+        let data: Vec<u8> = self.connection
+            .query_row(
+                "SELECT data FROM device_data ORDER BY version DESC LIMIT 1",
+                &[],
+                |row| row.get_checked(0),
+            )?
+            .map_err(|e| Error::from(e))?;
 
         let mut file = File::create(output_file)?;
         file.write_all(&data)?;
@@ -79,7 +85,7 @@ impl DatabaseManager {
 mod tests {
     use database::management::DatabaseManager;
     use database::migration::CURRENT_VERSION;
-    use std::fs::{copy, File, remove_file};
+    use std::fs::{copy, remove_file, File};
     use std::io::{Read, Write};
 
     #[test]

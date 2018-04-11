@@ -66,12 +66,13 @@ impl Backup {
 
         let backup_name = format!("{}.ab", backup_options.device_id);
         let adb_command = AdbCommand::command("backup")
-                .with_args(command_args)
-                .with_arg("-f").with_arg(&backup_name)
-                .with_device_id(Some(backup_options.device_id));
+            .with_args(command_args)
+            .with_arg("-f")
+            .with_arg(&backup_name)
+            .with_device_id(Some(backup_options.device_id));
 
         AdbCommand::execute(adb_command)?;
-        
+
         Ok(())
     }
 

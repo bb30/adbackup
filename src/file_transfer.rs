@@ -15,11 +15,7 @@ impl FileTransfer {
         Ok(())
     }
 
-    pub fn push(
-        device_id: Option<&str>,
-        src_path: &str,
-        dst_path: &str,
-    ) -> Result<(), Error> {
+    pub fn push(device_id: Option<&str>, src_path: &str, dst_path: &str) -> Result<(), Error> {
         AdbCommand::command("push")
             .with_args(vec![src_path, dst_path])
             .with_device_id(device_id)
@@ -38,10 +34,7 @@ mod tests {
     #[allow(dead_code)]
     fn test_simple_pull() {
         if Device::list_devices().unwrap().len() > 0 {
-            assert!(
-                FileTransfer::pull(Some("emulator-5554"), "/sdcard/la/")
-                    .is_ok()
-            )
+            assert!(FileTransfer::pull(Some("emulator-5554"), "/sdcard/la/").is_ok())
         }
     }
 
@@ -49,13 +42,7 @@ mod tests {
     #[allow(dead_code)]
     fn test_simple_push() {
         if Device::list_devices().unwrap().len() > 0 {
-            assert!(
-                FileTransfer::push(
-                    Some("emulator-5554"),
-                    "Cargo.toml",
-                    "/sdcard/la/",
-                ).is_ok()
-            )
+            assert!(FileTransfer::push(Some("emulator-5554"), "Cargo.toml", "/sdcard/la/",).is_ok())
         }
     }
 }
