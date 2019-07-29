@@ -36,7 +36,7 @@ log = "0.3"
 chrono = "0.4"
 
 [dependencies.rusqlite]
-version = "0.14.0"
+version = "0.20.0"
 # functions (closures in queries), trace (sqlite tracing), blob (io access to blobs) if needed
 features = ["bundled"]
 
