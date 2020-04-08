@@ -27,7 +27,7 @@ hamcrest = "0.1.5"
 
 [dependencies]
 clap = "~2.19"
-clippy = {version = "0.0.103", optional = true}
+clippy = {version = "0.0.302", optional = true}
 spectral = "0.6.0"
 failure = "0.1.1"
 failure_derive = "0.1.1"
