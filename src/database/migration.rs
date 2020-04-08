@@ -1,4 +1,4 @@
-use database::rusqlite::Connection;
+use database::rusqlite::{ Connection, params };
 use failure::Error;
 
 pub static CURRENT_VERSION: u32 = 1;
@@ -16,9 +16,9 @@ pub struct DatabaseMigrator;
 
 impl DatabaseMigrator {
     pub fn get_database_version(conn: &Connection) -> Result<u32, Error> {
-        conn.query_row("SELECT version FROM adbackup_system", &[], |row| {
-            row.get_checked(0)
-        })?
+        conn.query_row("SELECT version FROM adbackup_system", params![], |row| {
+            row.get::<_, u32>(0)
+        })
             .map_err(|e| Error::from(e))
     }
 
@@ -49,9 +49,9 @@ impl DatabaseMigrator {
     fn upgrade_to_one_from_none(conn: &Connection) -> Result<(), Error> {
         conn.execute(
             "CREATE TABLE adbackup_system (version INTEGER NOT NULL)",
-            &[],
+            params![],
         )?;
-        conn.execute("INSERT INTO adbackup_system VALUES(1)", &[])?;
+        conn.execute("INSERT INTO adbackup_system VALUES(1)", params![])?;
         conn.execute(
             "CREATE TABLE device_data (
             data_hash       TEXT NOT NULL,
@@ -60,7 +60,7 @@ impl DatabaseMigrator {
             date_created    INTEGER NOT NULL DEFAULT CURRENT_TIME,
             PRIMARY KEY(data_hash, version)
             )",
-            &[],
+            params![],
         )?;
 
         Ok(())
