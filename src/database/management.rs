@@ -1,5 +1,5 @@
 use database::migration::DatabaseMigrator;
-use database::rusqlite::Connection;
+use database::rusqlite::{ Connection, params };
 use failure::{err_msg, Error};
 use std::io::{Read, Write};
 use std::fs::File;
@@ -41,9 +41,9 @@ impl DatabaseManager {
 
         // check how many files there are in the sqlite database (versioning)
         let count: u32 = self.connection
-            .query_row("SELECT COUNT(version) FROM device_data", &[], |row| {
-                row.get_checked(0)
-            })?
+            .query_row("SELECT COUNT(version) FROM device_data", params![], |row| {
+                row.get::<_, u32>(0)
+            })
             .map_err(|e| Error::from(e))?;
 
         // insert file as blob into table (we can use a constant for the data_hash as incremental backups (for which we need to identify single files by their hash) are not yet implementable)
@@ -54,7 +54,7 @@ impl DatabaseManager {
         self.connection.execute(
             "INSERT INTO device_data (data_hash, version, data)
             VALUES (?1, ?2, ?3)",
-            &[&"const_hash", &(count + 1), &file_bytes],
+            params![&"const_hash", &(count + 1), &file_bytes],
         )?;
 
         Ok(())
@@ -69,9 +69,9 @@ impl DatabaseManager {
         let data: Vec<u8> = self.connection
             .query_row(
                 "SELECT data FROM device_data ORDER BY version DESC LIMIT 1",
-                &[],
-                |row| row.get_checked(0),
-            )?
+                params![],
+                |row| row.get::<_, Vec<u8>>(0),
+            )
             .map_err(|e| Error::from(e))?;
 
         let mut file = File::create(output_file)?;
