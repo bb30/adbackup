@@ -6,7 +6,7 @@ fn test_help() {
     let mocked_message =
         "adbackup 0.5.2\nJulian Raufelder <julian.raufelder@htwg-konstanz.de>\
          :Jonas Reinwald <jonas.reinwald@htwg-konstanz.de>\nA backup tool for android using adb\n\n\
-         USAGE:\n adbackup-cli [FLAGS] [SUBCOMMAND]\n\n\
+         USAGE:\n adbackup-cli [FLAGS] <SUBCOMMAND>\n\n\
          FLAGS:\n\
          -h, --help Prints help information\n\
          -V, --version Prints version information\n\
