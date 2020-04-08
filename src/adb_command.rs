@@ -40,7 +40,8 @@ impl<'a> AdbCommand<'a> {
         }
 
         command.arg(&self.command);
-        if self.args.len() > 0 {
+
+        if !self.args.is_empty() {
             command.args(self.args);
         }
 
@@ -54,10 +55,10 @@ impl<'a> AdbCommand<'a> {
             Ok(output_message.to_string())
         } else {
             let error_message = String::from_utf8_lossy(&output.stderr);
-            return Err(err_msg(format!(
+            Err(err_msg(format!(
                 "Error executing {}.\n {}",
                 self.command, error_message
-            )));
+            )))
         }
     }
 }

@@ -1,3 +1,20 @@
+extern crate chrono;
+extern crate failure;
+#[macro_use]
+extern crate failure_derive;
+extern crate fern;
+#[cfg(test)]
+#[macro_use]
+extern crate hamcrest;
+#[macro_use]
+extern crate log;
+
+use backup::Backup;
+use database::management::DatabaseManager;
+use devices::Device;
+use failure::{err_msg, Error};
+use restore::Restore;
+
 mod devices;
 mod logging;
 mod backup;
@@ -5,25 +22,6 @@ mod restore;
 mod adb_command;
 mod file_transfer;
 mod database;
-
-extern crate chrono;
-extern crate fern;
-
-#[macro_use]
-extern crate log;
-
-#[cfg(test)]
-#[macro_use]
-extern crate hamcrest;
-
-extern crate failure;
-#[macro_use] extern crate failure_derive;
-
-use backup::Backup;
-use database::management::DatabaseManager;
-use devices::Device;
-use failure::{err_msg, Error};
-use restore::Restore;
 
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
@@ -35,8 +33,8 @@ pub fn setup_logging(verbosity: u64) {
 
 pub fn get_printable_device_list() -> Result<String, Error> {
     let devices = Device::list_devices()?;
-    
-    if devices.len() > 0 {
+
+    if !devices.is_empty() {
         let devices_found = "Found the following devices:";
         info!("{}", devices_found);
 
@@ -63,7 +61,7 @@ pub fn get_device_id() -> Result<String, Error> {
     check_too_many_devices(&None)?;
 
     let devices = Device::list_devices()?;
-    
+
     if let Some(first_device) = devices.first() {
         Ok(first_device.id.clone())
     } else {
@@ -76,12 +74,49 @@ pub fn get_device_id() -> Result<String, Error> {
     }
 }
 
+pub fn backup(
+    device_id: &str,
+    apk: Option<&str>,
+    shared: Option<&str>,
+    system: Option<&str>,
+    only_specified: Option<&str>,
+) -> Result<String, Error> {
+    check_too_many_devices(&Some(device_id))?;
+
+    let mut backup_options = backup::BackupOptions::default(device_id);
+
+    if apk.is_some() {
+        backup_options = backup_options.with_applications();
+    }
+
+    if shared.is_some() {
+        backup_options = backup_options.with_shared_storage();
+    }
+
+    if system.is_some() {
+        backup_options = backup_options.with_system_apps();
+    }
+    if let Some(only_specified) = only_specified {
+        backup_options = backup_options.with_only_specified_app(only_specified);
+    }
+
+    Backup::backup(&backup_options)?;
+
+    let db_manager = DatabaseManager::open_connection(&device_id)?;
+    db_manager.insert_data(&format!("{}.ab", device_id))?;
+
+    let backup_finished = "Backup finished.";
+    info!("{}", backup_finished);
+
+    Ok(String::from(backup_finished))
+}
+
 pub fn get_printable_app_list(device_id: Option<&str>) -> Result<String, Error> {
     check_too_many_devices(&device_id)?;
 
     let apps = Backup::list_apps(device_id)?;
 
-    if apps.len() > 0 {
+    if !apps.is_empty() {
         let app_found = "Found the following app(s) on device:";
         info!("{}", app_found);
 
@@ -100,41 +135,6 @@ pub fn get_printable_app_list(device_id: Option<&str>) -> Result<String, Error> 
 
         Ok(String::from(no_apps_found))
     }
-}
-
-pub fn backup(
-    device_id: &str,
-    apk: Option<&str>,
-    shared: Option<&str>,
-    system: Option<&str>,
-    only_specified: Option<&str>,
-) -> Result<String, Error> {
-    check_too_many_devices(&Some(device_id))?;
-
-    let mut backup_options = backup::BackupOptions::default(device_id);
-    
-    if let Some(_) = apk {
-        backup_options = backup_options.with_applications();
-    }
-    if let Some(_) = shared {
-        backup_options = backup_options.with_shared_storage();
-    }
-    if let Some(_) = system {
-        backup_options = backup_options.with_system_apps();
-    }
-    if let Some(only_specified) = only_specified {
-        backup_options = backup_options.with_only_specified_app(only_specified);
-    }
-
-    Backup::backup(backup_options)?;
-
-    let db_manager = DatabaseManager::open_connection(&device_id)?;
-    db_manager.insert_data(&format!("{}.ab", device_id))?;
-
-    let backup_finished = "Backup finished.";
-    info!("{}", backup_finished);
-
-    Ok(String::from(backup_finished))
 }
 
 pub fn restore(device_id: &str) -> Result<String, Error> {
@@ -170,7 +170,7 @@ pub fn push(device_id: Option<&str>, src_path: &str, dst_path: &str) -> Result<S
     let push_finished = format!("Pushing from {} to {} finished.", src_path, dst_path);
     info!("{}", push_finished);
 
-    Ok(String::from(push_finished))
+    Ok(push_finished)
 }
 
 fn check_too_many_devices(device_id: &Option<&str>) -> Result<(), Error> {
